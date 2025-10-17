@@ -29,12 +29,42 @@ A comprehensive CLI-based system for managing internship placements between stud
 
 ## Compilation and Execution
 
-### Compile
+### Using Maven (Recommended)
+
+#### Compile
+```bash
+mvn compile
+```
+
+#### Run
+```bash
+mvn exec:java -Dexec.mainClass="InternshipPlacementSystem"
+```
+
+#### Run Tests
+```bash
+mvn test
+```
+
+#### Run Specific Test Class
+```bash
+mvn test -Dtest=AuthenticationTests
+mvn test -Dtest=ApplicationWorkflowTests
+```
+
+#### Clean and Rebuild
+```bash
+mvn clean compile
+```
+
+### Using javac (Manual)
+
+#### Compile
 ```bash
 javac -d bin -sourcepath src src/InternshipPlacementSystem.java
 ```
 
-### Run
+#### Run
 ```bash
 java -cp bin InternshipPlacementSystem
 ```
@@ -80,4 +110,78 @@ src/
 
 data/                 # Data files
 docs/                 # Documentation and diagrams
+
+src/test/java/        # Automated test suite
+├── util/             # Test utilities
+│   ├── TestStateManager.java
+│   ├── TestDataSetup.java
+│   └── TestHelpers.java
+├── AuthenticationTests.java       # TC-001, TC-002, TC-003
+├── UserManagementTests.java       # TC-004, TC-021
+├── InternshipManagementTests.java # TC-005, TC-006, TC-015, TC-017, TC-018
+├── ApplicationWorkflowTests.java  # TC-007 through TC-012, TC-019
+├── WithdrawalProcessTests.java    # TC-013, TC-014
+└── BusinessRulesTests.java        # TC-016, TC-020, TC-022, TC-023, TC-024, TC-025
 ```
+
+## Automated Testing
+
+### Test Suite Overview
+
+The project includes a comprehensive automated test suite with 25+ test cases covering all major functionality:
+
+- **Authentication Tests** (3 tests): System initialization, login, password changes
+- **User Management Tests** (2 tests): Registration and account management
+- **Internship Management Tests** (5 tests): Creation, approval, visibility, limits
+- **Application Workflow Tests** (7 tests): Viewing, applying, approving, accepting placements
+- **Withdrawal Process Tests** (3 tests): Requesting and approving withdrawals
+- **Business Rules Tests** (6 tests): Filter persistence, eligibility, reports, data persistence
+
+### Running the Tests
+
+#### Run All Tests
+```bash
+mvn test
+```
+
+#### Run Specific Test Class
+```bash
+mvn test -Dtest=AuthenticationTests
+mvn test -Dtest=ApplicationWorkflowTests
+```
+
+#### Run with Detailed Output
+```bash
+mvn test -Dtest=AuthenticationTests -DargLine="-Djunit.platform.output.capture.stdout=true"
+```
+
+### Test Results
+
+After running tests, Maven will display a summary:
+```
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0
+```
+
+Detailed test reports are generated in:
+- Console output: Immediate feedback
+- Target directory: `target/surefire-reports/`
+
+### Test Coverage
+
+The automated tests cover:
+- All user roles (Student, Company Representative, Career Center Staff)
+- Complete application lifecycle (apply → approve → accept → withdraw)
+- Business rules enforcement (application limits, eligibility, slot management)
+- Data persistence across system restarts
+- Filter settings and report generation
+- Edge cases and error conditions
+
+### Test Data
+
+Tests automatically:
+- Create clean test data before each test
+- Reset system state between tests
+- Use the same CSV format as production
+- Clean up after test execution
+
+No manual setup required - just run `mvn test`!
