@@ -40,10 +40,10 @@ public class FileManager {
         }
     }
 
-    public static List<String[]> readCSV(String filename) {
+    public static List<String[]> readCSV(String filename, boolean skipfirst) {
         List<String[]> records = new ArrayList<>();
         File file = new File(DATA_DIR + filename);
-
+        
         if (!file.exists()) {
             return records;
         }
@@ -51,6 +51,10 @@ public class FileManager {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = br.readLine()) != null) {
+                if (skipfirst) { // skip header
+                    skipfirst = false;
+                    continue;
+                }
                 if (line.trim().isEmpty() || line.startsWith("#")) {
                     continue;
                 }
