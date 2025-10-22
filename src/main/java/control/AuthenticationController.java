@@ -1,7 +1,6 @@
 package control;
 
 import entity.*;
-import util.IdGenerator;
 
 public class AuthenticationController {
     private UserManager userManager;
@@ -53,8 +52,7 @@ public class AuthenticationController {
     public boolean registerCompanyRepresentative(String name, String email, String password,
                                                   String companyName, String department,
                                                   String position) {
-        String userId = IdGenerator.generateUserId("CR");
-        CompanyRepresentative rep = new CompanyRepresentative(userId, password, name, email,
+        CompanyRepresentative rep = new CompanyRepresentative(email, password, name, email,
                 companyName, department, position);
         userManager.addUser(rep);
         return true;

@@ -13,7 +13,6 @@ public class CareerCenterStaffMenu extends MenuInterface {
     private InternshipManager internshipManager;
     private ApplicationManager applicationManager;
     private WithdrawalManager withdrawalManager;
-    private FilterManager filterManager;
 
     public CareerCenterStaffMenu(Scanner scanner, AuthenticationController authController) {
         super(scanner);
@@ -23,7 +22,6 @@ public class CareerCenterStaffMenu extends MenuInterface {
         this.internshipManager = InternshipManager.getInstance();
         this.applicationManager = ApplicationManager.getInstance();
         this.withdrawalManager = WithdrawalManager.getInstance();
-        this.filterManager = FilterManager.getInstance();
     }
 
     @Override
@@ -383,10 +381,8 @@ public class CareerCenterStaffMenu extends MenuInterface {
 
     private void changePassword() {
         printHeader("CHANGE PASSWORD");
-        System.out.print("Enter current password: ");
-        String oldPassword = scanner.nextLine();
-        System.out.print("Enter new password: ");
-        String newPassword = scanner.nextLine();
+        String oldPassword = getStringInput("Enter current password: ");
+        String newPassword = getStringInput("Enter new password: ");
 
         if (authController.changePassword(oldPassword, newPassword)) {
             System.out.println("Password changed successfully!");
