@@ -13,7 +13,6 @@ public class CareerCenterStaffMenu extends MenuInterface {
     private InternshipManager internshipManager;
     private ApplicationManager applicationManager;
     private WithdrawalManager withdrawalManager;
-    private FilterManager filterManager;
 
     public CareerCenterStaffMenu(Scanner scanner, AuthenticationController authController) {
         super(scanner);
@@ -23,7 +22,6 @@ public class CareerCenterStaffMenu extends MenuInterface {
         this.internshipManager = InternshipManager.getInstance();
         this.applicationManager = ApplicationManager.getInstance();
         this.withdrawalManager = WithdrawalManager.getInstance();
-        this.filterManager = FilterManager.getInstance();
     }
 
     @Override

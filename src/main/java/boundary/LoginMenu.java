@@ -1,7 +1,6 @@
 package boundary;
 
 import control.AuthenticationController;
-import control.UserManager;
 import entity.*;
 import util.InputValidator;
 import java.util.Scanner;
