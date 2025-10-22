@@ -386,10 +386,8 @@ public class CompanyRepresentativeMenu extends MenuInterface {
 
     private void changePassword() {
         printHeader("CHANGE PASSWORD");
-        System.out.print("Enter current password: ");
-        String oldPassword = scanner.nextLine();
-        System.out.print("Enter new password: ");
-        String newPassword = scanner.nextLine();
+        String oldPassword = getStringInput("Enter current password: ");
+        String newPassword = getStringInput("Enter new password: ");
 
         if (authController.changePassword(oldPassword, newPassword)) {
             System.out.println("Password changed successfully!");
