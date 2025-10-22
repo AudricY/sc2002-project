@@ -43,6 +43,23 @@ public class UserManagementTests {
         );
 
         assertTrue(registrationSuccess, "Registration should succeed");
+        boolean duplicateRegistration = authController.registerCompanyRepresentative(
+            "John Smith",
+            "john.smith@techcorp.com",
+            "password123",
+            "TechCorp",
+            "HR",
+            "Recruiter"
+        );
+
+        assertFalse(duplicateRegistration, "Registration should fail for duplicate account");
+
+        // Ensure only one instance exists in pending representatives
+        long matchingCount = userManager.getPendingRepresentatives().stream()
+            .filter(r -> r.getEmail().equals("john.smith@techcorp.com"))
+            .count();
+
+        assertEquals(1, matchingCount, "Only one representative with this email should exist");
 
         // Find the newly registered representative
         CompanyRepresentative newRep = userManager.getPendingRepresentatives().stream()
@@ -75,7 +92,7 @@ public class UserManagementTests {
     @DisplayName("TC-021: Password Change Functionality")
     public void testPasswordChangeFunctionality() {
         // Login as a student
-        boolean loginSuccess = authController.login("S001", "password");
+        boolean loginSuccess = authController.login("U2310001A", "password");
         assertTrue(loginSuccess, "Initial login should succeed");
 
         User user = authController.getCurrentUser();
@@ -90,17 +107,17 @@ public class UserManagementTests {
 
         // Logout and try to login with old password
         authController.logout();
-        boolean oldPasswordLogin = authController.login("S001", "password");
+        boolean oldPasswordLogin = authController.login("U2310001A", "password");
         assertFalse(oldPasswordLogin, "Old password should not work");
 
         // Login with new password
-        boolean newPasswordLogin = authController.login("S001", "newSecurePassword456");
+        boolean newPasswordLogin = authController.login("U2310001A", "newSecurePassword456");
         assertTrue(newPasswordLogin, "New password should work");
 
         // Verify user is correctly authenticated
         User currentUser = authController.getCurrentUser();
         assertNotNull(currentUser);
-        assertEquals("S001", currentUser.getUserId());
+        assertEquals("U2310001A", currentUser.getUserId());
 
         // Test password change with incorrect old password
         boolean incorrectOldPassword = authController.changePassword("wrongPassword", "anotherPassword");
@@ -108,7 +125,7 @@ public class UserManagementTests {
 
         // Verify password wasn't changed
         authController.logout();
-        boolean verifyPasswordUnchanged = authController.login("S001", "newSecurePassword456");
+        boolean verifyPasswordUnchanged = authController.login("U2310001A", "newSecurePassword456");
         assertTrue(verifyPasswordUnchanged, "Password should remain unchanged after failed change attempt");
     }
 }

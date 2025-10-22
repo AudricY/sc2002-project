@@ -55,19 +55,19 @@ public class WithdrawalProcessTests {
         TestHelpers.approveInternship("INT001");
 
         // Student applies
-        Application application = TestHelpers.createApplication("APP001", "S001", "INT001");
+        Application application = TestHelpers.createApplication("APP001", "U2310004D", "INT001");
 
         // Student requests withdrawal
         WithdrawalRequest withdrawalRequest = TestHelpers.createWithdrawalRequest(
             "WR001",
-            "S001",
+            "U2310004D",
             "APP001",
             "Found alternative opportunity"
         );
 
         assertNotNull(withdrawalRequest, "Withdrawal request should be created");
         assertEquals("WR001", withdrawalRequest.getRequestId());
-        assertEquals("S001", withdrawalRequest.getStudentId());
+        assertEquals("U2310004D", withdrawalRequest.getStudentId());
         assertEquals("APP001", withdrawalRequest.getApplicationId());
         assertEquals("Found alternative opportunity", withdrawalRequest.getReason());
         assertEquals(ApprovalStatus.PENDING, withdrawalRequest.getStatus());
@@ -101,21 +101,21 @@ public class WithdrawalProcessTests {
         TestHelpers.approveInternship("INT001");
 
         // Student applies, gets approved, and accepts
-        Application application = TestHelpers.createApplication("APP001", "S001", "INT001");
+        Application application = TestHelpers.createApplication("APP001", "U2310004D", "INT001");
         TestHelpers.approveApplication("APP001");
-        TestHelpers.acceptPlacement("S001", "APP001");
+        TestHelpers.acceptPlacement("U2310004D", "APP001");
 
         // Verify initial state
         Internship internship = internshipManager.getInternshipById("INT001");
         assertEquals(1, internship.getConfirmedSlots(), "Internship should have 1 confirmed slot");
 
-        Student student = (Student) userManager.getUserById("S001");
+        Student student = (Student) userManager.getUserById("U2310004D");
         assertEquals("APP001", student.getConfirmedPlacementId(), "Student should have confirmed placement");
 
         // Student requests withdrawal
         WithdrawalRequest withdrawalRequest = TestHelpers.createWithdrawalRequest(
             "WR001",
-            "S001",
+            "U2310004D",
             "APP001",
             "Personal reasons"
         );
@@ -148,7 +148,7 @@ public class WithdrawalProcessTests {
             "Confirmed slots should be decremented after withdrawal");
 
         // Verify student's confirmed placement cleared
-        Student updatedStudent = (Student) userManager.getUserById("S001");
+        Student updatedStudent = (Student) userManager.getUserById("U2310004D");
         assertNull(updatedStudent.getConfirmedPlacementId(),
             "Student's confirmed placement ID should be cleared");
     }
@@ -171,14 +171,14 @@ public class WithdrawalProcessTests {
         TestHelpers.approveInternship("INT001");
 
         // Student applies (but does NOT accept placement yet)
-        Application application = TestHelpers.createApplication("APP001", "S001", "INT001");
+        Application application = TestHelpers.createApplication("APP001", "U2310004D", "INT001");
         assertEquals(ApplicationStatus.PENDING, application.getStatus());
         assertFalse(application.isConfirmed());
 
         // Student requests withdrawal before acceptance
         WithdrawalRequest withdrawalRequest = TestHelpers.createWithdrawalRequest(
             "WR001",
-            "S001",
+            "U2310004D",
             "APP001",
             "Changed my mind"
         );
@@ -201,7 +201,7 @@ public class WithdrawalProcessTests {
             "Confirmed slots should remain 0 since student never accepted");
 
         // Verify student has no confirmed placement
-        Student student = (Student) userManager.getUserById("S001");
+        Student student = (Student) userManager.getUserById("U2310004D");
         assertNull(student.getConfirmedPlacementId(),
             "Student should not have confirmed placement");
     }

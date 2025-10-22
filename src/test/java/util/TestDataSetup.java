@@ -29,16 +29,12 @@ public class TestDataSetup {
      */
     public static void createTestStudentsCSV() {
         String[] studentData = {
-            "S001,Alice Tan,alice.tan@university.edu,2,Computer Science",
-            "S002,Bob Lee,bob.lee@university.edu,3,Business Administration",
-            "S003,Charlie Wong,charlie.wong@university.edu,1,Engineering",
-            "S004,Diana Chen,diana.chen@university.edu,4,Computer Science",
-            "S005,Eric Lim,eric.lim@university.edu,2,Information Systems",
-            "S006,Fiona Ng,fiona.ng@university.edu,3,Engineering",
-            "S007,George Koh,george.koh@university.edu,1,Business Administration",
-            "S008,Hannah Teo,hannah.teo@university.edu,4,Information Systems",
-            "S009,Ivan Ong,ivan.ong@university.edu,2,Computer Science",
-            "S010,Julia Sim,julia.sim@university.edu,3,Engineering"
+            "StudentID,Name,Major,Year,Email",
+            "U2310001A,Tan Wei Ling,Computer Science,2,tan001@e.ntu.edu.sg",
+            "U2310002B,Ng Jia Hao,Data Science & AI,3,ng002@e.ntu.edu.sg",
+            "U2310003C,Lim Yi Xuan,Computer Engineering,4,lim003@e.ntu.edu.sg",
+            "U2310004D,Chong Zhi Hao,Information Engineering & Media,1,chong004@e.ntu.edu.sg",
+            "U2310005E,Wong Shu Hui,Computer Science,3,wong005@e.ntu.edu.sg"
         };
 
         writeCSVFile("students.csv", studentData);
@@ -49,9 +45,10 @@ public class TestDataSetup {
      */
     public static void createTestStaffCSV() {
         String[] staffData = {
-            "STAFF001,Michael Brown,michael.brown@university.edu,Career Services",
-            "STAFF002,Sarah Johnson,sarah.johnson@university.edu,Student Affairs",
-            "STAFF003,David Williams,david.williams@university.edu,Career Services"
+            "StaffID,Name,Role,Department,Email",
+            "sng001,Dr. Sng Hui Lin,Career Center Staff,CCDS,sng001@ntu.edu.sg",
+            "tan002,Mr. Tan Boon Kiat,Career Center Staff,CCDS,tan002@ntu.edu.sg",
+            "lee003,Ms. Lee Mei Ling,Career Center Staff,CCDS,lee003@ntu.edu.sg"
         };
 
         writeCSVFile("staff.csv", staffData);

@@ -59,8 +59,8 @@ public class ApplicationWorkflowTests {
         );
         TestHelpers.approveInternship("INT002");
 
-        // S001 is Year 2, Computer Science - should only see BASIC
-        Student student = (Student) userManager.getUserById("S001");
+        // U2310001A is Year 2, Computer Science - should only see BASIC
+        Student student = (Student) userManager.getUserById("U2310001A");
         assertEquals(2, student.getYearOfStudy());
 
         List<Internship> visibleInternships = internshipManager.getVisibleInternshipsForStudent(student);
@@ -71,8 +71,8 @@ public class ApplicationWorkflowTests {
         assertFalse(visibleInternships.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
             "Year 2 student should NOT see INTERMEDIATE internship");
 
-        // S004 is Year 4, Computer Science - should see both
-        Student seniorStudent = (Student) userManager.getUserById("S004");
+        // U2310003C is Year 4, Computer Science - should see both
+        Student seniorStudent = (Student) userManager.getUserById("U2310003C");
         assertEquals(4, seniorStudent.getYearOfStudy());
 
         List<Internship> seniorVisibleInternships = internshipManager.getVisibleInternshipsForStudent(seniorStudent);
@@ -101,17 +101,17 @@ public class ApplicationWorkflowTests {
         TestHelpers.approveInternship("INT001");
 
         // Student applies
-        Application application = TestHelpers.createApplication("APP001", "S001", "INT001");
+        Application application = TestHelpers.createApplication("APP001", "U2310001A", "INT001");
 
         assertNotNull(application);
         assertEquals("APP001", application.getApplicationId());
-        assertEquals("S001", application.getStudentId());
+        assertEquals("U2310001A", application.getStudentId());
         assertEquals("INT001", application.getInternshipId());
         assertEquals(ApplicationStatus.PENDING, application.getStatus());
         assertFalse(application.isConfirmed());
 
         // Verify application appears in student's applications
-        List<Application> studentApplications = applicationManager.getApplicationsByStudent("S001");
+        List<Application> studentApplications = applicationManager.getApplicationsByStudent("U2310001A");
         assertTrue(studentApplications.stream().anyMatch(a -> a.getApplicationId().equals("APP001")),
             "Application should appear in student's application list");
     }
@@ -136,12 +136,12 @@ public class ApplicationWorkflowTests {
         }
 
         // Create 3 pending applications
-        TestHelpers.createApplication("APP001", "S001", "INT001");
-        TestHelpers.createApplication("APP002", "S001", "INT002");
-        TestHelpers.createApplication("APP003", "S001", "INT003");
+        TestHelpers.createApplication("APP001", "U2310001A", "INT001");
+        TestHelpers.createApplication("APP002", "U2310001A", "INT002");
+        TestHelpers.createApplication("APP003", "U2310001A", "INT003");
 
         // Verify student has 3 pending applications
-        int pendingCount = applicationManager.countPendingApplicationsByStudent("S001");
+        int pendingCount = applicationManager.countPendingApplicationsByStudent("U2310001A");
         assertEquals(3, pendingCount, "Student should have 3 pending applications");
 
         // Verify that limit is reached (business logic would prevent 4th application)
@@ -167,7 +167,7 @@ public class ApplicationWorkflowTests {
         TestHelpers.approveInternship("INT001");
 
         // Student applies
-        Application application = TestHelpers.createApplication("APP001", "S001", "INT001");
+        Application application = TestHelpers.createApplication("APP001", "U2310001A", "INT001");
         assertEquals(ApplicationStatus.PENDING, application.getStatus());
 
         // Representative reviews and approves
@@ -203,15 +203,15 @@ public class ApplicationWorkflowTests {
         TestHelpers.approveInternship("INT002");
 
         // Student applies to both
-        TestHelpers.createApplication("APP001", "S001", "INT001");
-        TestHelpers.createApplication("APP002", "S001", "INT002");
+        TestHelpers.createApplication("APP001", "U2310001A", "INT001");
+        TestHelpers.createApplication("APP002", "U2310001A", "INT002");
 
         // Both get approved
         TestHelpers.approveApplication("APP001");
         TestHelpers.approveApplication("APP002");
 
         // Student accepts APP001
-        boolean acceptSuccess = TestHelpers.acceptPlacement("S001", "APP001");
+        boolean acceptSuccess = TestHelpers.acceptPlacement("U2310001A", "APP001");
         assertTrue(acceptSuccess, "Student should be able to accept placement");
 
         // Verify application is confirmed
@@ -219,7 +219,7 @@ public class ApplicationWorkflowTests {
         assertTrue(confirmedApp.isConfirmed(), "Application should be marked as confirmed");
 
         // Verify student's confirmedPlacementId is set
-        Student student = (Student) userManager.getUserById("S001");
+        Student student = (Student) userManager.getUserById("U2310001A");
         assertEquals("APP001", student.getConfirmedPlacementId());
 
         // Verify internship confirmed slots incremented
@@ -249,15 +249,15 @@ public class ApplicationWorkflowTests {
         TestHelpers.approveInternship("INT001");
 
         // Two students apply
-        TestHelpers.createApplication("APP001", "S001", "INT001");
-        TestHelpers.createApplication("APP002", "S003", "INT001");
+        TestHelpers.createApplication("APP001", "U2310001A", "INT001");
+        TestHelpers.createApplication("APP002", "U2310005E", "INT001");
 
         // Approve both applications
         TestHelpers.approveApplication("APP001");
         TestHelpers.approveApplication("APP002");
 
         // First student accepts
-        TestHelpers.acceptPlacement("S001", "APP001");
+        TestHelpers.acceptPlacement("U2310001A", "APP001");
 
         Internship internship = internshipManager.getInternshipById("INT001");
         assertEquals(1, internship.getConfirmedSlots());
@@ -265,7 +265,7 @@ public class ApplicationWorkflowTests {
         assertFalse(internship.isFilled());
 
         // Second student accepts
-        TestHelpers.acceptPlacement("S003", "APP002");
+        TestHelpers.acceptPlacement("U2310005E", "APP002");
 
         internship = internshipManager.getInternshipById("INT001");
         assertEquals(2, internship.getConfirmedSlots());
@@ -297,14 +297,14 @@ public class ApplicationWorkflowTests {
         TestHelpers.approveInternship("INT001");
 
         // Student applies
-        TestHelpers.createApplication("APP001", "S001", "INT001");
+        TestHelpers.createApplication("APP001", "U2310001A", "INT001");
 
         // Verify duplicate check works
-        boolean hasDuplicate = applicationManager.hasAppliedToInternship("S001", "INT001");
+        boolean hasDuplicate = applicationManager.hasAppliedToInternship("U2310001A", "INT001");
         assertTrue(hasDuplicate, "System should detect student has already applied to this internship");
 
         // Verify another student can still apply
-        boolean otherStudentApplied = applicationManager.hasAppliedToInternship("S002", "INT001");
+        boolean otherStudentApplied = applicationManager.hasAppliedToInternship("U2310002B", "INT001");
         assertFalse(otherStudentApplied, "Other students should not be affected by duplicate check");
     }
 }

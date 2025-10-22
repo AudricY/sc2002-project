@@ -41,7 +41,7 @@ public class BusinessRulesTests {
     @DisplayName("TC-016: Filter Settings Persistence")
     public void testFilterSettingsPersistence() {
         // Get filter settings for student
-        FilterSettings settings = filterManager.getFilterSettings("S001");
+        FilterSettings settings = filterManager.getFilterSettings("U2310001A");
 
         // Verify default settings
         assertEquals(SortCriteria.ALPHABETICAL, settings.getSortBy(),
@@ -55,7 +55,7 @@ public class BusinessRulesTests {
         filterManager.updateFilterSettings(settings);
 
         // Verify settings are saved
-        FilterSettings retrieved = filterManager.getFilterSettings("S001");
+        FilterSettings retrieved = filterManager.getFilterSettings("U2310001A");
         assertEquals(InternshipLevel.BASIC, retrieved.getLevelFilter());
         assertEquals(SortCriteria.CLOSING_DATE, retrieved.getSortBy());
         assertEquals("Computer Science", retrieved.getMajorFilter());
@@ -65,7 +65,7 @@ public class BusinessRulesTests {
         filterManager = FilterManager.getInstance();
 
         // Verify settings persisted across session
-        FilterSettings afterReload = filterManager.getFilterSettings("S001");
+        FilterSettings afterReload = filterManager.getFilterSettings("U2310001A");
         assertEquals(InternshipLevel.BASIC, afterReload.getLevelFilter(),
             "Level filter should persist across sessions");
         assertEquals(SortCriteria.CLOSING_DATE, afterReload.getSortBy(),
@@ -74,7 +74,7 @@ public class BusinessRulesTests {
             "Major filter should persist across sessions");
 
         // Verify new user has default settings
-        FilterSettings newUserSettings = filterManager.getFilterSettings("S002");
+        FilterSettings newUserSettings = filterManager.getFilterSettings("U2310002B");
         assertEquals(SortCriteria.ALPHABETICAL, newUserSettings.getSortBy(),
             "New users should have default alphabetical sort");
         assertNull(newUserSettings.getLevelFilter(),
@@ -111,7 +111,7 @@ public class BusinessRulesTests {
         TestHelpers.approveInternship("INT003");
 
         // Year 1 student - should only see BASIC
-        Student year1Student = (Student) userManager.getUserById("S003"); // Year 1
+        Student year1Student = (Student) userManager.getUserById("U2310004D"); // Year 1
         assertEquals(1, year1Student.getYearOfStudy());
 
         List<Internship> year1Visible = internshipManager.getVisibleInternshipsForStudent(year1Student);
@@ -123,7 +123,7 @@ public class BusinessRulesTests {
             "Year 1 student should NOT see ADVANCED");
 
         // Year 2 student - should only see BASIC
-        Student year2Student = (Student) userManager.getUserById("S001"); // Year 2
+        Student year2Student = (Student) userManager.getUserById("U2310001A"); // Year 2
         assertEquals(2, year2Student.getYearOfStudy());
 
         List<Internship> year2Visible = internshipManager.getVisibleInternshipsForStudent(year2Student);
@@ -135,15 +135,21 @@ public class BusinessRulesTests {
             "Year 2 student should NOT see ADVANCED");
 
         // Year 3 student - should see all levels
-        Student year3Student = (Student) userManager.getUserById("S002"); // Year 3
+        Student year3Student = (Student) userManager.getUserById("U2310002B"); // Year 3
         assertEquals(3, year3Student.getYearOfStudy());
 
         List<Internship> year3Visible = internshipManager.getVisibleInternshipsForStudent(year3Student);
+        assertTrue(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
+            "Year 3 student should see BASIC");
+        assertTrue(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
+            "Year 3 student should see INTERMEDIATE");
+        assertTrue(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT003")),
+            "Year 3 student should see ADVANCED");
         // Note: major mismatch might filter some, but eligibility by year should pass
-        // S002 is Business Administration, so won't see Computer Science internships
+        // U2310002B is Data Science & AI, so won't see Computer Science internships
 
         // Year 4 student - should see all levels
-        Student year4Student = (Student) userManager.getUserById("S004"); // Year 4, Computer Science
+        Student year4Student = (Student) userManager.getUserById("U2310003C"); // Year 4, Computer Science
         assertEquals(4, year4Student.getYearOfStudy());
 
         List<Internship> year4Visible = internshipManager.getVisibleInternshipsForStudent(year4Student);
@@ -282,8 +288,8 @@ public class BusinessRulesTests {
         TestHelpers.approveInternship("INT002");
 
         // Student applies to both
-        TestHelpers.createApplication("APP001", "S001", "INT001");
-        TestHelpers.createApplication("APP002", "S001", "INT002");
+        TestHelpers.createApplication("APP001", "U2310001A", "INT001");
+        TestHelpers.createApplication("APP002", "U2310001A", "INT002");
 
         // Approve one, reject another
         TestHelpers.approveApplication("APP001");
@@ -292,10 +298,10 @@ public class BusinessRulesTests {
         applicationManager.updateApplication(app2);
 
         // Student accepts successful placement
-        TestHelpers.acceptPlacement("S001", "APP001");
+        TestHelpers.acceptPlacement("U2310001A", "APP001");
 
         // Generate summary for student
-        List<Application> studentApps = applicationManager.getApplicationsByStudent("S001");
+        List<Application> studentApps = applicationManager.getApplicationsByStudent("U2310001A");
         assertEquals(2, studentApps.size(), "Student should have 2 applications");
 
         long pending = studentApps.stream()
@@ -313,7 +319,7 @@ public class BusinessRulesTests {
         assertEquals(1, unsuccessful, "Should have 1 unsuccessful application");
 
         // Verify confirmed placement status
-        Student student = (Student) userManager.getUserById("S001");
+        Student student = (Student) userManager.getUserById("U2310001A");
         assertNotNull(student.getConfirmedPlacementId(), "Student should have confirmed placement");
         assertEquals("APP001", student.getConfirmedPlacementId());
     }
@@ -335,10 +341,10 @@ public class BusinessRulesTests {
         );
         TestHelpers.approveInternship("INT001");
 
-        TestHelpers.createApplication("APP001", "S001", "INT001");
-        TestHelpers.createWithdrawalRequest("WR001", "S001", "APP001", "Test reason");
+        TestHelpers.createApplication("APP001", "U2310001A", "INT001");
+        TestHelpers.createWithdrawalRequest("WR001", "U2310001A", "APP001", "Test reason");
 
-        FilterSettings settings = filterManager.getFilterSettings("S001");
+        FilterSettings settings = filterManager.getFilterSettings("U2310001A");
         settings.setLevelFilter(InternshipLevel.BASIC);
         filterManager.updateFilterSettings(settings);
 
@@ -354,7 +360,7 @@ public class BusinessRulesTests {
 
         // Verify all data persisted
         // Users
-        User student = userManager.getUserById("S001");
+        User student = userManager.getUserById("U2310001A");
         assertNotNull(student, "Student should persist");
         CompanyRepresentative persistedRep = (CompanyRepresentative) userManager.getUserById(rep.getUserId());
         assertNotNull(persistedRep, "Representative should persist");
@@ -369,17 +375,17 @@ public class BusinessRulesTests {
         // Applications
         Application persistedApp = applicationManager.getApplicationById("APP001");
         assertNotNull(persistedApp, "Application should persist");
-        assertEquals("S001", persistedApp.getStudentId());
+        assertEquals("U2310001A", persistedApp.getStudentId());
         assertEquals("INT001", persistedApp.getInternshipId());
 
         // Withdrawal requests
         WithdrawalRequest persistedWithdrawal = withdrawalManager.getWithdrawalById("WR001");
         assertNotNull(persistedWithdrawal, "Withdrawal request should persist");
-        assertEquals("S001", persistedWithdrawal.getStudentId());
+        assertEquals("U2310001A", persistedWithdrawal.getStudentId());
         assertEquals("APP001", persistedWithdrawal.getApplicationId());
 
         // Filter settings
-        FilterSettings persistedSettings = filterManager.getFilterSettings("S001");
+        FilterSettings persistedSettings = filterManager.getFilterSettings("U2310001A");
         assertNotNull(persistedSettings, "Filter settings should persist");
         assertEquals(InternshipLevel.BASIC, persistedSettings.getLevelFilter());
     }

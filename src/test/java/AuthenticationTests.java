@@ -37,17 +37,17 @@ public class AuthenticationTests {
         assertNotNull(userManager, "UserManager should be initialized");
 
         // Verify students were loaded from CSV
-        Student student = (Student) userManager.getUserById("S001");
-        assertNotNull(student, "Student S001 should be loaded from CSV");
-        assertEquals("Alice Tan", student.getName());
+        Student student = (Student) userManager.getUserById("U2310001A");
+        assertNotNull(student, "Student U2310001A should be loaded from CSV");
+        assertEquals("Tan Wei Ling", student.getName());
         assertEquals(2, student.getYearOfStudy());
         assertEquals("Computer Science", student.getMajor());
 
         // Verify staff were loaded from CSV
-        CareerCenterStaff staff = (CareerCenterStaff) userManager.getUserById("STAFF001");
-        assertNotNull(staff, "Staff STAFF001 should be loaded from CSV");
-        assertEquals("Michael Brown", staff.getName());
-        assertEquals("Career Services", staff.getStaffDepartment());
+        CareerCenterStaff staff = (CareerCenterStaff) userManager.getUserById("sng001");
+        assertNotNull(staff, "Staff sng001 should be loaded from CSV");
+        assertEquals("Dr. Sng Hui Lin", staff.getName());
+        assertEquals("CCDS", staff.getStaffDepartment());
 
         // Verify default passwords
         assertEquals("password", student.getPassword());
@@ -62,13 +62,13 @@ public class AuthenticationTests {
     @DisplayName("TC-002: Student Login with Default Password")
     public void testStudentLoginWithDefaultPassword() {
         // Attempt login with default credentials
-        boolean loginSuccess = authController.login("S001", "password");
+        boolean loginSuccess = authController.login("U2310001A", "password");
         assertTrue(loginSuccess, "Login should succeed with default password");
 
         // Verify current user is set
         User currentUser = authController.getCurrentUser();
         assertNotNull(currentUser, "Current user should be set after login");
-        assertEquals("S001", currentUser.getUserId());
+        assertEquals("U2310001A", currentUser.getUserId());
         assertTrue(currentUser instanceof Student, "Current user should be a Student");
 
         // Verify first login flag
@@ -83,11 +83,11 @@ public class AuthenticationTests {
 
         // Verify old password no longer works
         authController.logout();
-        boolean oldPasswordLogin = authController.login("S001", "password");
+        boolean oldPasswordLogin = authController.login("U2310001A", "password");
         assertFalse(oldPasswordLogin, "Old password should not work");
 
         // Verify new password works
-        boolean newPasswordLogin = authController.login("S001", "newPassword123");
+        boolean newPasswordLogin = authController.login("U2310001A", "newPassword123");
         assertTrue(newPasswordLogin, "New password should work");
     }
 
@@ -95,7 +95,7 @@ public class AuthenticationTests {
     @DisplayName("TC-003: Staff Login and Representative Approval")
     public void testStaffLoginAndRepresentativeApproval() {
         // Staff logs in
-        boolean staffLogin = authController.login("STAFF001", "password");
+        boolean staffLogin = authController.login("sng001", "password");
         assertTrue(staffLogin, "Staff login should succeed");
 
         User staff = authController.getCurrentUser();

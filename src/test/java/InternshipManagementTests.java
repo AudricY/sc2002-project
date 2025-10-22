@@ -103,7 +103,7 @@ public class InternshipManagementTests {
         assertEquals(InternshipStatus.PENDING, internship.getStatus());
 
         // Staff logs in and approves the internship
-        boolean staffLogin = authController.login("STAFF001", "password");
+        boolean staffLogin = authController.login("sng001", "password");
         assertTrue(staffLogin);
 
         // Approve the internship
@@ -112,7 +112,7 @@ public class InternshipManagementTests {
         assertEquals(InternshipStatus.APPROVED, approved.getStatus());
 
         // Verify internship is now visible to eligible students
-        Student student = (Student) userManager.getUserById("S004"); // Year 4, Computer Science
+        Student student = (Student) userManager.getUserById("U2310003C"); // Year 4, Computer Science
         java.util.List<Internship> visibleInternships = internshipManager.getVisibleInternshipsForStudent(student);
         assertTrue(visibleInternships.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
             "Approved internship should be visible to eligible students");
@@ -145,7 +145,7 @@ public class InternshipManagementTests {
         );
         TestHelpers.approveInternship("INT001");
 
-        Student student = (Student) userManager.getUserById("S004"); // Year 4, Computer Science
+        Student student = (Student) userManager.getUserById("U2310003C"); // Year 4, Computer Science
 
         // Verify internship is initially visible
         java.util.List<Internship> visibleBefore = internshipManager.getVisibleInternshipsForStudent(student);
