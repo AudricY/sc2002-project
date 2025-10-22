@@ -95,19 +95,25 @@ public class LoginMenu extends MenuInterface {
         String email;
         while (true) {
             email = getStringInput("Email: ");
-            if (InputValidator.isValidEmail(email)) {
-                break;
+            if (!InputValidator.isValidEmail(email)) {
+                System.out.println("Invalid email format. Try again.");
+                continue;
             }
-            System.out.println("Invalid email format. Try again.");
+            if (authController.userExists(email)) {
+                System.out.println("Company already has a representative");
+            }
+            break;
+            
         }
         
         String password;
         while (true) {
             password = getStringInput("Password (min 6 characters): ");
-            if (InputValidator.isValidPassword(password)) {
-                break;
+            if (!InputValidator.isValidPassword(password)) {
+                System.out.println("Password must be at least 6 characters. Try again.");
+                continue;
             }
-            System.out.println("Password must be at least 6 characters. Try again.");
+            break;
         }
 
         String companyName = getStringInput("Company Name: ");

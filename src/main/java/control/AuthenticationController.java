@@ -57,4 +57,8 @@ public class AuthenticationController {
         userManager.addUser(rep);
         return true;
     }
+
+    public boolean userExists(String userId) {
+        return userManager.userExists(userId);
+    }
 }
