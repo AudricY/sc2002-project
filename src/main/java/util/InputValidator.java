@@ -1,11 +1,9 @@
 package util;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class InputValidator {
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public static boolean isValidEmail(String email) {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
@@ -17,15 +15,11 @@ public class InputValidator {
 
     public static boolean isValidDate(String date) {
         try {
-            LocalDate.parse(date, DATE_FORMATTER);
+            LocalDate.parse(date, DateUtils.FORMATTER);
             return true;
         } catch (DateTimeParseException e) {
             return false;
         }
-    }
-
-    public static LocalDate parseDate(String date) {
-        return LocalDate.parse(date, DATE_FORMATTER);
     }
 
     public static boolean isPositiveInteger(String input) {

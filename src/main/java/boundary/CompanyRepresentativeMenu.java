@@ -101,7 +101,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         while (openingDate == null) {
             String dateStr = getStringInput("Opening Date (yyyy-MM-dd): ");
             if (InputValidator.isValidDate(dateStr)) {
-                openingDate = InputValidator.parseDate(dateStr);
+                openingDate = DateUtils.parseDate(dateStr);
             } else {
                 System.out.println("Invalid date format.");
             }
@@ -111,7 +111,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         while (closingDate == null) {
             String dateStr = getStringInput("Closing Date (yyyy-MM-dd): ");
             if (InputValidator.isValidDate(dateStr)) {
-                closingDate = InputValidator.parseDate(dateStr);
+                closingDate = DateUtils.parseDate(dateStr);
                 if (closingDate.isBefore(openingDate)) {
                     System.out.println("Closing date must be after opening date.");
                     closingDate = null;
@@ -154,7 +154,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
                 System.out.printf("Level: %s | Major: %s\n", intern.getLevel(), intern.getPreferredMajor());
                 System.out.printf("Status: %s | Visible: %s\n", intern.getStatus(), intern.isVisible());
                 System.out.printf("Slots: %d/%d confirmed\n", intern.getConfirmedSlots(), intern.getTotalSlots());
-                System.out.printf("Period: %s to %s\n", intern.getOpeningDate(), intern.getClosingDate());
+                System.out.printf("Period: %s to %s\n", DateUtils.formatDate(intern.getOpeningDate()), DateUtils.formatDate(intern.getClosingDate()));
             }
         }
         pause();

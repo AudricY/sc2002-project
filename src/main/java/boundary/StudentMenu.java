@@ -2,6 +2,7 @@ package boundary;
 
 import control.*;
 import entity.*;
+import util.DateUtils;
 import util.IdGenerator;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -92,7 +93,7 @@ public class StudentMenu extends MenuInterface {
                 System.out.printf("   Level: %s | Major: %s\n", intern.getLevel(), intern.getPreferredMajor());
                 System.out.printf("   Slots: %d/%d available\n",
                         intern.getTotalSlots() - intern.getConfirmedSlots(), intern.getTotalSlots());
-                System.out.printf("   Period: %s to %s\n", intern.getOpeningDate(), intern.getClosingDate());
+                System.out.printf("   Period: %s to %s\n", DateUtils.formatDate(intern.getOpeningDate()), DateUtils.formatDate(intern.getClosingDate()));
             }
         }
         pause();

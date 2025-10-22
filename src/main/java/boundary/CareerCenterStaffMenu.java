@@ -2,6 +2,8 @@ package boundary;
 
 import control.*;
 import entity.*;
+import util.DateUtils;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -132,7 +134,7 @@ public class CareerCenterStaffMenu extends MenuInterface {
             System.out.printf("   Company: %s\n", intern.getCompanyName());
             System.out.printf("   Level: %s | Major: %s | Slots: %d\n",
                     intern.getLevel(), intern.getPreferredMajor(), intern.getTotalSlots());
-            System.out.printf("   Period: %s to %s\n", intern.getOpeningDate(), intern.getClosingDate());
+            System.out.printf("   Period: %s to %s\n", DateUtils.formatDate(intern.getOpeningDate()), DateUtils.formatDate(intern.getClosingDate()));
             System.out.printf("   Description: %s\n", intern.getDescription());
         }
 
