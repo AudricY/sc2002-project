@@ -52,6 +52,7 @@ public class AuthenticationController {
     public boolean registerCompanyRepresentative(String name, String email, String password,
                                                   String companyName, String department,
                                                   String position) {
+        if (userExists(email)) return false;
         CompanyRepresentative rep = new CompanyRepresentative(email, password, name, email,
                 companyName, department, position);
         userManager.addUser(rep);

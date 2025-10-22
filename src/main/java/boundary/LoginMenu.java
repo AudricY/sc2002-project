@@ -99,9 +99,6 @@ public class LoginMenu extends MenuInterface {
                 System.out.println("Invalid email format. Try again.");
                 continue;
             }
-            if (authController.userExists(email)) {
-                System.out.println("Company already has a representative");
-            }
             break;
             
         }
@@ -120,11 +117,16 @@ public class LoginMenu extends MenuInterface {
         String department = getStringInput("Department: ");
         String position = getStringInput("Position: ");
 
-        authController.registerCompanyRepresentative(name, email, password,
+        Boolean success = authController.registerCompanyRepresentative(name, email, password,
                 companyName, department, position);
-
-        System.out.println("\nRegistration successful! Your account is pending approval.");
-        System.out.println("You will be able to login once approved by Career Center Staff.");
+        if (success) {
+            System.out.println("\nRegistration successful! Your account is pending approval.");
+            System.out.println("You will be able to login once approved by Career Center Staff.");
+        }
+        else {
+            System.out.println("\nRegistration failed!");
+            System.out.println("Company already has a representative!");
+        }
         pause();
     }
 
