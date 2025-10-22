@@ -14,8 +14,18 @@ public abstract class MenuInterface {
     public abstract void handleMenuChoice(int choice);
 
     protected void clearScreen() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
+        try {
+            if (System.getProperty("os.name").contains("Windows")) {
+                // Support windows
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                // Works on terminals that support ANSI escape codes
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            System.out.println("Could not clear screen");
+        }
     }
 
     protected void pause() {
