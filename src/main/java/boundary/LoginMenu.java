@@ -45,8 +45,7 @@ public class LoginMenu extends MenuInterface {
     private void handleLogin() {
         System.out.println("\n--- Login ---");
         String userId = getStringInput("User ID: ");
-        System.out.print("Password: ");
-        String password = scanner.nextLine();
+        String password = getStringInput("Password: ");
 
         if (authController.login(userId, password)) {
             User user = authController.getCurrentUser();
@@ -67,12 +66,9 @@ public class LoginMenu extends MenuInterface {
 
     private void handlePasswordChange() {
         while (true) {
-            System.out.print("Enter current password: ");
-            String oldPassword = scanner.nextLine();
-            System.out.print("Enter new password (min 6 characters): ");
-            String newPassword = scanner.nextLine();
-            System.out.print("Confirm new password: ");
-            String confirmPassword = scanner.nextLine();
+            String oldPassword = getStringInput("Enter current password: ");
+            String newPassword = getStringInput("Enter new password (min 6 characters): ");
+            String confirmPassword = getStringInput("Confirm new password: ");
 
             if (!newPassword.equals(confirmPassword)) {
                 System.out.println("Passwords do not match. Try again.");
@@ -105,11 +101,10 @@ public class LoginMenu extends MenuInterface {
             }
             System.out.println("Invalid email format. Try again.");
         }
-
+        
         String password;
         while (true) {
-            System.out.print("Password (min 6 characters): ");
-            password = scanner.nextLine();
+            password = getStringInput("Password (min 6 characters): ");
             if (InputValidator.isValidPassword(password)) {
                 break;
             }
