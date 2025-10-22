@@ -1,7 +1,6 @@
 package control;
 
 import entity.*;
-import util.IdGenerator;
 
 public class AuthenticationController {
     private UserManager userManager;
