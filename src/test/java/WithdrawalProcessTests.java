@@ -173,7 +173,7 @@ public class WithdrawalProcessTests {
         // Student applies (but does NOT accept placement yet)
         Application application = TestHelpers.createApplication("APP001", "U2310004D", "INT001");
         assertEquals(ApplicationStatus.PENDING, application.getStatus());
-        assertFalse(application.isConfirmed());
+        assertFalse(application.getStatus().equals(ApplicationStatus.CONFIRMED));
 
         // Student requests withdrawal before acceptance
         WithdrawalRequest withdrawalRequest = TestHelpers.createWithdrawalRequest(

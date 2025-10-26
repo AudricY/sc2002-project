@@ -147,7 +147,7 @@ public class TestHelpers {
         }
 
         // Mark application as confirmed
-        application.setConfirmed(true);
+        application.setStatus(ApplicationStatus.CONFIRMED);
         applicationManager.updateApplication(application);
 
         // Update student's confirmed placement

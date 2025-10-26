@@ -79,14 +79,6 @@ public class ApplicationManager {
                         a.getInternshipId().equals(internshipId));
     }
 
-    public Application getConfirmedApplication(String studentId) {
-        return applications.stream()
-                .filter(a -> a.getStudentId().equals(studentId))
-                .filter(Application::isConfirmed)
-                .findFirst()
-                .orElse(null);
-    }
-
     public void reviewApplication(Application application, int decision) {
         switch (decision) {
             case 1:
@@ -121,7 +113,7 @@ public class ApplicationManager {
     }
 
     public void handleApplicationAcceptance(Student student, Application application) {
-        application.setConfirmed(true);
+        application.setStatus(ApplicationStatus.CONFIRMED);
         updateApplication(application);
 
         student.setConfirmedPlacementId(application.getInternshipId());

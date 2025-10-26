@@ -291,7 +291,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
                 System.out.printf("\n[%s] %s\n", app.getApplicationId(), student.getName());
                 System.out.printf("Student ID: %s | %s\n", student.getUserId(), student.getProfileInfo());
                 System.out.printf("Status: %s | Applied: %s\n", app.getStatus(), app.getApplicationDate());
-                if (app.isConfirmed()) {
+                if (app.getStatus().equals(ApplicationStatus.CONFIRMED)) {
                     System.out.println("*** CONFIRMED ***");
                 }
             }

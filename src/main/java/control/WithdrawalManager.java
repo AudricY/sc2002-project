@@ -78,7 +78,8 @@ public class WithdrawalManager {
                 request.setReviewDate(LocalDateTime.now());
                 updateWithdrawalRequest(request);
                 Application app = applicationManager.getApplicationById(request.getApplicationId());
-                boolean wasConfirmed = app.isConfirmed();
+                
+                boolean wasConfirmed = (app.getStatus().equals(ApplicationStatus.CONFIRMED));
                 String internshipId = app.getInternshipId();
 
                 applicationManager.removeApplication(app);

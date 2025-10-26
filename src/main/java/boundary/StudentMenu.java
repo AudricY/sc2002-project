@@ -115,7 +115,7 @@ public class StudentMenu extends MenuInterface {
                 System.out.printf("Internship: %s - %s\n", intern.getInternshipId(), intern.getTitle());
                 System.out.printf("Company: %s\n", intern.getCompanyName());
                 System.out.printf("Status: %s\n", app.getStatus());
-                if (app.isConfirmed()) {
+                if (app.getStatus().equals(ApplicationStatus.CONFIRMED)) {
                     System.out.println("*** CONFIRMED PLACEMENT ***");
                 }
                 System.out.printf("Applied: %s\n", app.getApplicationDate());
@@ -187,11 +187,8 @@ public class StudentMenu extends MenuInterface {
             return;
         }
 
-        List<Application> successfulApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.SUCCESSFUL)
-                .stream()
-                .filter(a -> !a.isConfirmed())
-                .collect(Collectors.toList());
-                
+        List<Application> successfulApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.CONFIRMED);
+
         if (successfulApps.isEmpty()) {
             System.out.println("You have no successful applications to accept.");
             pause();

@@ -308,7 +308,7 @@ public class BusinessRulesTests {
             .filter(a -> a.getStatus() == ApplicationStatus.PENDING)
             .count();
         long successful = studentApps.stream()
-            .filter(a -> a.getStatus() == ApplicationStatus.SUCCESSFUL && a.isConfirmed())
+            .filter(a -> a.getStatus() == ApplicationStatus.SUCCESSFUL && a.getStatus().equals(ApplicationStatus.CONFIRMED))
             .count();
         long unsuccessful = studentApps.stream()
             .filter(a -> a.getStatus() == ApplicationStatus.UNSUCCESSFUL)

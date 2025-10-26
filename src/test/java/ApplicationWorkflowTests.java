@@ -108,7 +108,7 @@ public class ApplicationWorkflowTests {
         assertEquals("U2310001A", application.getStudentId());
         assertEquals("INT001", application.getInternshipId());
         assertEquals(ApplicationStatus.PENDING, application.getStatus());
-        assertFalse(application.isConfirmed());
+        assertFalse(application.getStatus().equals(ApplicationStatus.CONFIRMED));
 
         // Verify application appears in student's applications
         List<Application> studentApplications = applicationManager.getApplicationsByStudent("U2310001A");
@@ -216,7 +216,7 @@ public class ApplicationWorkflowTests {
 
         // Verify application is confirmed
         Application confirmedApp = applicationManager.getApplicationById("APP001");
-        assertTrue(confirmedApp.isConfirmed(), "Application should be marked as confirmed");
+        assertTrue(confirmedApp.getStatus().equals(ApplicationStatus.CONFIRMED), "Application should be marked as confirmed");
 
         // Verify student's confirmedPlacementId is set
         Student student = (Student) userManager.getUserById("U2310001A");

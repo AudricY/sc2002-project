@@ -11,7 +11,6 @@ public class Application implements Serializable {
     private String internshipId;
     private ApplicationStatus status;
     private LocalDateTime applicationDate;
-    private boolean confirmed;
 
     public Application(String applicationId, String studentId, String internshipId) {
         this.applicationId = applicationId;
@@ -19,7 +18,6 @@ public class Application implements Serializable {
         this.internshipId = internshipId;
         this.status = ApplicationStatus.PENDING;
         this.applicationDate = LocalDateTime.now();
-        this.confirmed = false;
     }
 
     public String getApplicationId() {
@@ -60,13 +58,5 @@ public class Application implements Serializable {
 
     public void setApplicationDate(LocalDateTime applicationDate) {
         this.applicationDate = applicationDate;
-    }
-
-    public boolean isConfirmed() {
-        return confirmed;
-    }
-
-    public void setConfirmed(boolean confirmed) {
-        this.confirmed = confirmed;
     }
 }

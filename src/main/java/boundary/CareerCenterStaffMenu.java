@@ -175,8 +175,7 @@ public class CareerCenterStaffMenu extends MenuInterface {
             System.out.printf("\n%d. [%s] Withdrawal Request\n", i + 1, request.getRequestId());
             System.out.printf("   Student: %s (%s)\n", student.getName(), student.getUserId());
             System.out.printf("   Internship: %s - %s\n", intern.getTitle(), intern.getCompanyName());
-            System.out.printf("   Application Status: %s | Confirmed: %s\n",
-                    app.getStatus(), app.isConfirmed());
+            System.out.printf("   Application Status: %s\n", app.getStatus());
             System.out.printf("   Reason: %s\n", request.getReason());
             System.out.printf("   Requested: %s\n", request.getRequestDate());
         }
