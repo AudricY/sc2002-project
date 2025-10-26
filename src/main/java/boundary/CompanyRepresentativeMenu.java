@@ -128,13 +128,10 @@ public class CompanyRepresentativeMenu extends MenuInterface {
                 System.out.println("Must be between 1 and 10.");
             }
         }
-
         String internshipId = IdGenerator.generateInternshipId();
-        Internship internship = new Internship(internshipId, title, description, level,
+        internshipManager.addInternship(internshipId, title, description, level,
                 preferredMajor, openingDate, closingDate, representative.getCompanyName(),
                 representative.getUserId(), totalSlots);
-
-        internshipManager.addInternship(internship);
         System.out.println("Internship opportunity created! ID: " + internshipId);
         System.out.println("Status: PENDING (awaiting Career Center Staff approval)");
         pause();
@@ -201,19 +198,16 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         System.out.println("0. Cancel");
 
         int editChoice = getIntInput("Enter choice: ");
-
+        String newValue;
         switch (editChoice) {
             case 1:
-                String newTitle = getStringInput("New Title: ");
-                selectedInternship.setTitle(newTitle);
+                newValue = getStringInput("New Title: ");
                 break;
             case 2:
-                String newDesc = getStringInput("New Description: ");
-                selectedInternship.setDescription(newDesc);
+                newValue = getStringInput("New Description: ");
                 break;
             case 3:
-                String newMajor = getStringInput("New Preferred Major: ");
-                selectedInternship.setPreferredMajor(newMajor);
+                newValue = getStringInput("New Preferred Major: ");
                 break;
             default:
                 System.out.println("Cancelled.");
@@ -221,7 +215,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
                 return;
         }
 
-        internshipManager.updateInternship(selectedInternship);
+        internshipManager.editInternshipField(selectedInternship, editChoice, newValue);;
         System.out.println("Internship updated successfully!");
         pause();
     }
@@ -252,8 +246,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         }
 
         Internship selectedInternship = internships.get(choice - 1);
-        selectedInternship.setVisible(!selectedInternship.isVisible());
-        internshipManager.updateInternship(selectedInternship);
+        internshipManager.toggleInternshipVisibility(selectedInternship);
 
         System.out.println("Visibility toggled. Now: " + (selectedInternship.isVisible() ? "VISIBLE" : "HIDDEN"));
         pause();
@@ -331,10 +324,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         }
 
         Internship selectedInternship = internships.get(choice - 1);
-        List<Application> pendingApps = applicationManager.getApplicationsByInternship(
-                        selectedInternship.getInternshipId()).stream()
-                .filter(a -> a.getStatus() == ApplicationStatus.PENDING)
-                .collect(java.util.stream.Collectors.toList());
+        List<Application> pendingApps = applicationManager.getApplicationsByInternshipandStatus(selectedInternship.getInternshipId(), ApplicationStatus.PENDING);
 
         if (pendingApps.isEmpty()) {
             System.out.println("No pending applications for this internship.");
@@ -361,13 +351,10 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         System.out.println("2. Reject");
         int decision = getIntInput("Enter choice: ");
 
+        applicationManager.reviewApplication(selectedApp, decision);
         if (decision == 1) {
-            selectedApp.setStatus(ApplicationStatus.SUCCESSFUL);
-            applicationManager.updateApplication(selectedApp);
             System.out.println("Application approved! Student can now accept this placement.");
         } else if (decision == 2) {
-            selectedApp.setStatus(ApplicationStatus.UNSUCCESSFUL);
-            applicationManager.updateApplication(selectedApp);
             System.out.println("Application rejected.");
         } else {
             System.out.println("Invalid choice.");

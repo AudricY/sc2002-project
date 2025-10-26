@@ -73,6 +73,21 @@ public class UserManager {
                 .collect(Collectors.toList());
     }
 
+    public void reviewRepresentative(CompanyRepresentative rep, int decision) {
+        switch (decision) {
+            case 1:
+                rep.setApprovalStatus(ApprovalStatus.APPROVED);
+                updateUser(rep);
+                break;
+            case 2:
+                rep.setApprovalStatus(ApprovalStatus.REJECTED);
+                updateUser(rep);
+                break;
+            default:
+                break;
+        }
+    }
+
     public void loadUsersFromCSV(String filename, UserRole role) {
         List<String[]> records = FileManager.readCSV(filename, true);
 

@@ -76,13 +76,11 @@ public class TestHelpers {
         LocalDate openingDate = LocalDate.of(2025, 1, 1);
         LocalDate closingDate = LocalDate.of(2025, 12, 31);
 
-        Internship internship = new Internship(internshipId, title, description, level, preferredMajor,
+        InternshipManager internshipManager = InternshipManager.getInstance();
+        internshipManager.addInternship(internshipId, title, description, level, preferredMajor,
                 openingDate, closingDate, companyName, representativeId, totalSlots);
 
-        InternshipManager internshipManager = InternshipManager.getInstance();
-        internshipManager.addInternship(internship);
-
-        return internship;
+        return internshipManager.getInternshipById(internshipId);
     }
 
     /**
@@ -110,10 +108,9 @@ public class TestHelpers {
      * @return The created application
      */
     public static Application createApplication(String applicationId, String studentId, String internshipId) {
-        Application application = new Application(applicationId, studentId, internshipId);
         ApplicationManager applicationManager = ApplicationManager.getInstance();
-        applicationManager.addApplication(application);
-        return application;
+        applicationManager.addApplication(applicationId, studentId, internshipId);
+        return applicationManager.getApplicationById(applicationId);
     }
 
     /**

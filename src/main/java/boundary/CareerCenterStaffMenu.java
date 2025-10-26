@@ -5,9 +5,7 @@ import entity.*;
 import util.DateUtils;
 import util.PasswordChangeResult;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CareerCenterStaffMenu extends MenuInterface {
     private AuthenticationController authController;
@@ -103,14 +101,10 @@ public class CareerCenterStaffMenu extends MenuInterface {
         System.out.println("\n1. Approve");
         System.out.println("2. Reject");
         int decision = getIntInput("Enter choice: ");
-
+        userManager.reviewRepresentative(selectedRep, decision);
         if (decision == 1) {
-            selectedRep.setApprovalStatus(ApprovalStatus.APPROVED);
-            userManager.updateUser(selectedRep);
             System.out.println("Representative approved!");
         } else if (decision == 2) {
-            selectedRep.setApprovalStatus(ApprovalStatus.REJECTED);
-            userManager.updateUser(selectedRep);
             System.out.println("Representative rejected.");
         } else {
             System.out.println("Invalid choice.");
@@ -150,14 +144,10 @@ public class CareerCenterStaffMenu extends MenuInterface {
         System.out.println("\n1. Approve");
         System.out.println("2. Reject");
         int decision = getIntInput("Enter choice: ");
-
+        internshipManager.reviewInternship(selectedInternship, decision);
         if (decision == 1) {
-            selectedInternship.setStatus(InternshipStatus.APPROVED);
-            internshipManager.updateInternship(selectedInternship);
             System.out.println("Internship approved! Now visible to eligible students.");
         } else if (decision == 2) {
-            selectedInternship.setStatus(InternshipStatus.REJECTED);
-            internshipManager.updateInternship(selectedInternship);
             System.out.println("Internship rejected.");
         } else {
             System.out.println("Invalid choice.");
@@ -202,35 +192,10 @@ public class CareerCenterStaffMenu extends MenuInterface {
         System.out.println("\n1. Approve");
         System.out.println("2. Reject");
         int decision = getIntInput("Enter choice: ");
-
+        withdrawalManager.reviewWithdrawal(selectedRequest, staff.getUserId(), decision);
         if (decision == 1) {
-            selectedRequest.setStatus(ApprovalStatus.APPROVED);
-            selectedRequest.setReviewedByStaffId(staff.getUserId());
-            selectedRequest.setReviewDate(LocalDateTime.now());
-            withdrawalManager.updateWithdrawalRequest(selectedRequest);
-
-            Application app = applicationManager.getApplicationById(selectedRequest.getApplicationId());
-            boolean wasConfirmed = app.isConfirmed();
-            String internshipId = app.getInternshipId();
-
-            applicationManager.removeApplication(app);
-
-            if (wasConfirmed) {
-                Student student = (Student) userManager.getUserById(selectedRequest.getStudentId());
-                student.setConfirmedPlacementId(null);
-                userManager.updateUser(student);
-
-                Internship internship = internshipManager.getInternshipById(internshipId);
-                internship.decrementConfirmedSlots();
-                internshipManager.updateInternship(internship);
-            }
-
             System.out.println("Withdrawal approved. Application removed.");
         } else if (decision == 2) {
-            selectedRequest.setStatus(ApprovalStatus.REJECTED);
-            selectedRequest.setReviewedByStaffId(staff.getUserId());
-            selectedRequest.setReviewDate(LocalDateTime.now());
-            withdrawalManager.updateWithdrawalRequest(selectedRequest);
             System.out.println("Withdrawal rejected.");
         } else {
             System.out.println("Invalid choice.");
@@ -263,29 +228,53 @@ public class CareerCenterStaffMenu extends MenuInterface {
 
     private void generateAllInternshipsReport() {
         printHeader("ALL INTERNSHIPS REPORT");
-
-        List<Internship> allInternships = internshipManager.getPendingInternships();
-        allInternships.addAll(internshipManager.filterInternships(
-                new ArrayList<>(), new FilterSettings("temp")));
+        Map<InternshipStatus, List<Internship>> groupedInternships = internshipManager.getAllInternships(Internship::getStatus);
+        if (groupedInternships.isEmpty()) {
+            System.out.println("No internships available.");
+            pause();
+            return;
+        }
 
         System.out.println("Loading all internships...");
-        List<String> statuses = Arrays.asList("PENDING", "APPROVED", "REJECTED", "FILLED");
+        for (Map.Entry<InternshipStatus, List<Internship>> entry : groupedInternships.entrySet()) {
+            InternshipStatus status = entry.getKey();
+            List<Internship> list = entry.getValue();
+            System.out.printf("\n--- %s: %d ---\n", status, list.size());
 
-        for (String statusStr : statuses) {
-            InternshipStatus status = InternshipStatus.valueOf(statusStr);
-            List<Internship> filtered = allInternships.stream()
-                    .filter(i -> i.getStatus() == status)
-                    .collect(Collectors.toList());
-
-            System.out.printf("\n--- %s: %d ---\n", statusStr, filtered.size());
-            for (Internship intern : filtered) {
+            for (Internship intern : list) {
                 System.out.printf("[%s] %s - %s | Slots: %d/%d\n",
-                        intern.getInternshipId(), intern.getTitle(), intern.getCompanyName(),
-                        intern.getConfirmedSlots(), intern.getTotalSlots());
+                        intern.getInternshipId(),
+                        intern.getTitle(),
+                        intern.getCompanyName(),
+                        intern.getConfirmedSlots(),
+                        intern.getTotalSlots());
             }
         }
+
         pause();
     }
+        // List<Internship> allInternships = internshipManager.getPendingInternships();
+        // allInternships.addAll(internshipManager.filterInternships(
+        //         new ArrayList<>(), new FilterSettings("temp")));
+
+        // System.out.println("Loading all internships...");
+        // List<String> statuses = Arrays.asList("PENDING", "APPROVED", "REJECTED", "FILLED");
+
+        // for (String statusStr : statuses) {
+        //     InternshipStatus status = InternshipStatus.valueOf(statusStr);
+        //     List<Internship> filtered = allInternships.stream()
+        //             .filter(i -> i.getStatus() == status)
+        //             .collect(Collectors.toList());
+
+        //     System.out.printf("\n--- %s: %d ---\n", statusStr, filtered.size());
+        //     for (Internship intern : filtered) {
+        //         System.out.printf("[%s] %s - %s | Slots: %d/%d\n",
+        //                 intern.getInternshipId(), intern.getTitle(), intern.getCompanyName(),
+        //                 intern.getConfirmedSlots(), intern.getTotalSlots());
+        //     }
+        // }
+        // pause();
+    // }
 
     private void generateFilteredInternshipsReport() {
         printHeader("FILTERED INTERNSHIPS REPORT");
@@ -349,9 +338,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
                 System.out.printf("  Applications: %d | Confirmed Placement: %s\n",
                         apps.size(), student.hasConfirmedPlacement() ? "YES" : "NO");
 
-                long pending = apps.stream().filter(a -> a.getStatus() == ApplicationStatus.PENDING).count();
-                long successful = apps.stream().filter(a -> a.getStatus() == ApplicationStatus.SUCCESSFUL).count();
-                long unsuccessful = apps.stream().filter(a -> a.getStatus() == ApplicationStatus.UNSUCCESSFUL).count();
+                long pending = applicationManager.getApplicationCount(apps, ApplicationStatus.PENDING);
+                long successful = applicationManager.getApplicationCount(apps, ApplicationStatus.SUCCESSFUL);
+                long unsuccessful = applicationManager.getApplicationCount(apps, ApplicationStatus.UNSUCCESSFUL);
 
                 System.out.printf("  Pending: %d | Successful: %d | Unsuccessful: %d\n",
                         pending, successful, unsuccessful);

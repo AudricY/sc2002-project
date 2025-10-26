@@ -25,7 +25,9 @@ public class ApplicationManager {
         FileManager.saveToFile(APPLICATIONS_FILE, applications);
     }
 
-    public void addApplication(Application application) {
+    public void addApplication(String applicationId, String studentId, String internshipId) {
+        Application application = new Application(applicationId, studentId,
+                internshipId);
         applications.add(application);
         saveApplications();
     }
@@ -83,5 +85,61 @@ public class ApplicationManager {
                 .filter(Application::isConfirmed)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void reviewApplication(Application application, int decision) {
+        switch (decision) {
+            case 1:
+                application.setStatus(ApplicationStatus.SUCCESSFUL);
+                updateApplication(application);
+                break;
+            case 2:
+                application.setStatus(ApplicationStatus.UNSUCCESSFUL);
+                updateApplication(application);
+            default:
+                break;
+        }
+
+    }
+
+    public List<Application> getApplicationsByInternshipandStatus(String internshipId, ApplicationStatus status) {
+        return getApplicationsByInternship(
+                        internshipId).stream()
+                .filter(a -> a.getStatus() == status)
+                .collect(java.util.stream.Collectors.toList());
+    } 
+
+    public List<Application> getApplicationsByStudentandStatus(String studentId, ApplicationStatus status) {
+        return getApplicationsByStudent(studentId)
+            .stream()
+            .filter(a -> a.getStatus() != status)
+            .collect(Collectors.toList());
+    }
+
+    public long getApplicationCount(List<Application> apps, ApplicationStatus status) {
+        return apps.stream().filter(a -> a.getStatus() == status).count();
+    }
+
+    public void handleApplicationAcceptance(Student student, Application application) {
+        application.setConfirmed(true);
+        updateApplication(application);
+
+        student.setConfirmedPlacementId(application.getInternshipId());
+        UserManager.getInstance().updateUser(student);
+
+        InternshipManager internshipManager = InternshipManager.getInstance();
+        Internship internship = internshipManager.getInternshipById(application.getInternshipId());
+        internship.incrementConfirmedSlots();
+        internshipManager.updateInternship(internship);
+        List<Application> otherApps = getApplicationsByStudent(student.getUserId())
+                .stream()
+                .filter(a -> !a.getApplicationId().equals(application.getApplicationId()))
+                .filter(a -> a.getStatus() == ApplicationStatus.SUCCESSFUL)
+                .collect(Collectors.toList());
+
+        for (Application app : otherApps) {
+            app.setStatus(ApplicationStatus.UNSUCCESSFUL);
+            updateApplication(app);
+        }
     }
 }

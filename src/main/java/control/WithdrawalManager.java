@@ -2,6 +2,8 @@ package control;
 
 import entity.*;
 import util.FileManager;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,5 +65,43 @@ public class WithdrawalManager {
         return withdrawalRequests.stream()
                 .anyMatch(w -> w.getApplicationId().equals(applicationId) &&
                         w.getStatus() == ApprovalStatus.PENDING);
+    }
+
+    public void reviewWithdrawal(WithdrawalRequest request, String staffId, int decision) {
+        ApplicationManager applicationManager = ApplicationManager.getInstance();
+        UserManager userManager = UserManager.getInstance();
+        InternshipManager internshipManager = InternshipManager.getInstance();
+        switch (decision) {
+            case 1:
+                request.setStatus(ApprovalStatus.APPROVED);
+                request.setReviewedByStaffId(staffId);
+                request.setReviewDate(LocalDateTime.now());
+                updateWithdrawalRequest(request);
+                Application app = applicationManager.getApplicationById(request.getApplicationId());
+                boolean wasConfirmed = app.isConfirmed();
+                String internshipId = app.getInternshipId();
+
+                applicationManager.removeApplication(app);
+
+                if (wasConfirmed) {
+                    Student student = (Student) userManager.getUserById(request.getStudentId());
+                    student.setConfirmedPlacementId(null);
+                    userManager.updateUser(student);
+
+                    Internship internship = internshipManager.getInternshipById(internshipId);
+                    internship.decrementConfirmedSlots();
+                    internshipManager.updateInternship(internship);
+                }
+                break;
+            
+            case 2:
+                request.setStatus(ApprovalStatus.REJECTED);
+                request.setReviewedByStaffId(staffId);
+                request.setReviewDate(LocalDateTime.now());
+                updateWithdrawalRequest(request);
+        
+            default:
+                break;
+        }
     }
 }

@@ -2,8 +2,11 @@ package control;
 
 import entity.*;
 import util.FileManager;
+
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.function.Function;
 
 public class InternshipManager {
     private static final String INTERNSHIPS_FILE = "internships.dat";
@@ -25,8 +28,8 @@ public class InternshipManager {
         FileManager.saveToFile(INTERNSHIPS_FILE, internships);
     }
 
-    public void addInternship(Internship internship) {
-        internships.add(internship);
+    public void addInternship(String internshipId, String title, String description, InternshipLevel level, String preferredMajor, LocalDate openingDate, LocalDate closingDate, String companyName, String representativeId, int totalSlots) {
+        internships.add(new Internship(internshipId, title, description, level, preferredMajor, openingDate, closingDate, companyName, representativeId, totalSlots));
         saveInternships();
     }
 
@@ -106,5 +109,48 @@ public class InternshipManager {
         return (int) internships.stream()
                 .filter(i -> i.getRepresentativeId().equals(representativeId))
                 .count();
+    }
+
+    public void reviewInternship(Internship internship, int decision) {
+        switch(decision){
+            case 1:
+                internship.setStatus(InternshipStatus.APPROVED);
+                updateInternship(internship);
+                break;
+            case 2:
+                internship.setStatus(InternshipStatus.REJECTED);
+                updateInternship(internship);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void editInternshipField(Internship internship, int field, String newValue) {
+        switch (field) {
+            case 1:
+                internship.setTitle(newValue);
+                break;
+            case 2:
+                internship.setDescription(newValue);
+                break;
+            case 3:
+                internship.setPreferredMajor(newValue);
+                break;
+            default:
+                break;
+        }
+        updateInternship(internship);
+    }
+
+    public void toggleInternshipVisibility(Internship internship) {
+        internship.setVisible(!internship.isVisible());
+        updateInternship(internship);
+    }
+
+    public <K> Map<K, List<Internship>> getAllInternships(Function<Internship, K> groupByField) {
+        return internships.stream()
+            .collect(Collectors.groupingBy(groupByField));
+
     }
 }

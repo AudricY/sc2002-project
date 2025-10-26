@@ -171,9 +171,8 @@ public class StudentMenu extends MenuInterface {
         }
 
         String appId = IdGenerator.generateApplicationId();
-        Application application = new Application(appId, student.getUserId(),
+        applicationManager.addApplication(appId, student.getUserId(),
                 selectedInternship.getInternshipId());
-        applicationManager.addApplication(application);
 
         System.out.println("Application submitted successfully!");
         pause();
@@ -188,11 +187,11 @@ public class StudentMenu extends MenuInterface {
             return;
         }
 
-        List<Application> successfulApps = applicationManager.getApplicationsByStudent(student.getUserId())
+        List<Application> successfulApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.SUCCESSFUL)
                 .stream()
-                .filter(a -> a.getStatus() == ApplicationStatus.SUCCESSFUL && !a.isConfirmed())
+                .filter(a -> !a.isConfirmed())
                 .collect(Collectors.toList());
-
+                
         if (successfulApps.isEmpty()) {
             System.out.println("You have no successful applications to accept.");
             pause();
@@ -215,26 +214,8 @@ public class StudentMenu extends MenuInterface {
         }
 
         Application selectedApp = successfulApps.get(choice - 1);
-        selectedApp.setConfirmed(true);
-        applicationManager.updateApplication(selectedApp);
-
-        student.setConfirmedPlacementId(selectedApp.getInternshipId());
-        UserManager.getInstance().updateUser(student);
-
-        Internship internship = internshipManager.getInternshipById(selectedApp.getInternshipId());
-        internship.incrementConfirmedSlots();
-        internshipManager.updateInternship(internship);
-
-        List<Application> otherApps = applicationManager.getApplicationsByStudent(student.getUserId())
-                .stream()
-                .filter(a -> !a.getApplicationId().equals(selectedApp.getApplicationId()))
-                .filter(a -> a.getStatus() == ApplicationStatus.SUCCESSFUL)
-                .collect(Collectors.toList());
-
-        for (Application app : otherApps) {
-            app.setStatus(ApplicationStatus.UNSUCCESSFUL);
-            applicationManager.updateApplication(app);
-        }
+        
+        applicationManager.handleApplicationAcceptance(student, selectedApp);
 
         System.out.println("Placement accepted! Other successful applications have been withdrawn.");
         pause();
@@ -243,10 +224,8 @@ public class StudentMenu extends MenuInterface {
     private void requestWithdrawal() {
         printHeader("REQUEST WITHDRAWAL");
 
-        List<Application> applications = applicationManager.getApplicationsByStudent(student.getUserId())
-                .stream()
-                .filter(a -> a.getStatus() != ApplicationStatus.UNSUCCESSFUL)
-                .collect(Collectors.toList());
+        List<Application> applications = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.UNSUCCESSFUL);
+
 
         if (applications.isEmpty()) {
             System.out.println("You have no applications to withdraw.");
