@@ -43,26 +43,35 @@ public class LoginMenu extends MenuInterface {
 
     private void handleLogin() {
         System.out.println("\n--- Login ---");
+
         String userId = getStringInput("User ID: ");
         String password = getStringInput("Password: ");
-        boolean success = false;
-        if (authController.login(userId, password)) {
-            User user = authController.getCurrentUser();
-            System.out.println("Login successful! Welcome, " + user.getName());
 
-            if (user.isFirstLogin()) {
-                System.out.println("\nFirst time login detected. Please change your password.");
-                success = handlePasswordChange();
-            }
-            
-            if (success) {
-                pause();
-                navigateToUserMenu(user);
-            }
-
+        if (!authController.login(userId, password)) {
+            System.out.println("Login failed. Please check your User ID and password.");
+            System.out.println("If your account is new, make sure it has been approved by an administrator.");
+            pause();
+            return;
         }
-        System.out.println("Login failed. Invalid credentials or account not approved.");
+
+        User user = authController.getCurrentUser();
+        System.out.println("Login successful! Welcome, " + user.getName() + ".");
+
+        if (user.isFirstLogin()) {
+            System.out.println("\nFirst-time login detected. You must change your password before continuing.");
+            boolean passwordChanged = handlePasswordChange();
+
+            if (!passwordChanged) {
+                System.out.println("Password change cancelled or failed. You cannot proceed until your password is updated.");
+                pause();
+                return;
+            }
+
+            System.out.println("Password updated successfully. Proceeding to your account...");
+        }
+
         pause();
+        navigateToUserMenu(user);
     }
 
     private boolean handlePasswordChange() {
