@@ -45,30 +45,34 @@ public class LoginMenu extends MenuInterface {
         System.out.println("\n--- Login ---");
         String userId = getStringInput("User ID: ");
         String password = getStringInput("Password: ");
-
+        boolean success = false;
         if (authController.login(userId, password)) {
             User user = authController.getCurrentUser();
             System.out.println("Login successful! Welcome, " + user.getName());
 
             if (user.isFirstLogin()) {
                 System.out.println("\nFirst time login detected. Please change your password.");
-                handlePasswordChange();
+                success = handlePasswordChange();
+            }
+            
+            if (success) {
+                pause();
+                navigateToUserMenu(user);
             }
 
-            pause();
-            navigateToUserMenu(user);
-        } else {
-            System.out.println("Login failed. Invalid credentials or account not approved.");
-            pause();
         }
+        System.out.println("Login failed. Invalid credentials or account not approved.");
+        pause();
     }
 
-    private void handlePasswordChange() {
-        while (true) {
+    private boolean handlePasswordChange() {
+        final int MAX_ATTEMPTS = 3;
+        int attempts = 0;
+        while (attempts < MAX_ATTEMPTS) {
             String oldPassword = getStringInput("Enter current password: ");
             String newPassword = getStringInput("Enter new password (min 6 characters): ");
             String confirmPassword = getStringInput("Confirm new password: ");
-
+            attempts++;
             if (!newPassword.equals(confirmPassword)) {
                 System.out.println("Passwords do not match. Try again.");
                 continue;
@@ -79,13 +83,15 @@ public class LoginMenu extends MenuInterface {
                 continue;
             }
 
-            if (authController.changePassword(oldPassword, newPassword)) {
-                System.out.println("Password changed successfully!");
-                break;
-            } else {
+            if (!authController.changePassword(oldPassword, newPassword)) {
                 System.out.println("Current password incorrect. Try again.");
+                continue;
             }
+            System.out.println("Password changed successfully!");
+            return true;
         }
+        System.out.println("Too many failed attempts.");
+        return false;
     }
 
     private void handleRegistration() {
