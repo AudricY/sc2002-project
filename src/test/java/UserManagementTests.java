@@ -4,6 +4,8 @@ import entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+
+import util.PasswordChangeResult;
 import util.TestDataSetup;
 import util.TestHelpers;
 import util.TestStateManager;
@@ -99,8 +101,8 @@ public class UserManagementTests {
         assertNotNull(user, "Current user should be set");
 
         // Change password
-        boolean changeSuccess = authController.changePassword("password", "newSecurePassword456");
-        assertTrue(changeSuccess, "Password change should succeed");
+        PasswordChangeResult changeSuccess = authController.attemptPasswordChange("password", "newSecurePassword456", "newSecurePassword456");
+        assertTrue(changeSuccess.equals(PasswordChangeResult.SUCCESS), "Password change should succeed");
 
         // Verify password was changed in the user object
         assertEquals("newSecurePassword456", user.getPassword());
@@ -120,8 +122,8 @@ public class UserManagementTests {
         assertEquals("U2310001A", currentUser.getUserId());
 
         // Test password change with incorrect old password
-        boolean incorrectOldPassword = authController.changePassword("wrongPassword", "anotherPassword");
-        assertFalse(incorrectOldPassword, "Password change should fail with incorrect old password");
+        PasswordChangeResult result = authController.attemptPasswordChange("wrongPassword", "anotherPassword", "anotherPassword");
+        assertFalse(!result.equals(PasswordChangeResult.INCORRECT_OLD), "Password change should fail with incorrect old password");
 
         // Verify password wasn't changed
         authController.logout();

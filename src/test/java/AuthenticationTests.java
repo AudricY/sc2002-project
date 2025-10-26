@@ -4,6 +4,8 @@ import entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+
+import util.PasswordChangeResult;
 import util.TestDataSetup;
 import util.TestHelpers;
 import util.TestStateManager;
@@ -75,8 +77,8 @@ public class AuthenticationTests {
         assertTrue(currentUser.isFirstLogin(), "First login flag should be true");
 
         // Simulate password change on first login
-        boolean passwordChangeSuccess = authController.changePassword("password", "newPassword123");
-        assertTrue(passwordChangeSuccess, "Password change should succeed");
+        PasswordChangeResult passwordChangeSuccess = authController.attemptPasswordChange("password", "newPassword123", "newPassword123");
+        assertTrue(passwordChangeSuccess.equals(PasswordChangeResult.SUCCESS), "Password change should succeed");
 
         // Verify first login flag is cleared
         assertFalse(currentUser.isFirstLogin(), "First login flag should be false after password change");
