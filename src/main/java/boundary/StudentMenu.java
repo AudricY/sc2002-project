@@ -4,6 +4,8 @@ import control.*;
 import entity.*;
 import util.DateUtils;
 import util.IdGenerator;
+import util.PasswordChangeResult;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -300,14 +302,35 @@ public class StudentMenu extends MenuInterface {
 
     private void changePassword() {
         printHeader("CHANGE PASSWORD");
-        String oldPassword = getStringInput("Enter current password: ");
-        String newPassword = getStringInput("Enter new password: ");
+        final int MAX_ATTEMPTS = 3;
+        int attempts = 0;
+        while (attempts < MAX_ATTEMPTS) {
+            String oldPassword = getStringInput("Enter current password: ");
+            String newPassword = getStringInput("Enter new password (min 6 characters): ");
+            String confirmPassword = getStringInput("Confirm new password: ");
+            attempts++;
+            PasswordChangeResult result = authController.attemptPasswordChange(oldPassword, newPassword, confirmPassword);
 
-        if (authController.changePassword(oldPassword, newPassword)) {
-            System.out.println("Password changed successfully!");
-        } else {
-            System.out.println("Failed to change password. Current password incorrect.");
+            switch (result) {
+                case SUCCESS:
+                    System.out.println("Password changed successfully!");
+                    pause();
+                    return;
+                case MISMATCH:
+                    System.out.println("Passwords do not match. Try again.");
+                    break;
+                case INVALID_FORMAT:
+                    System.out.println("Password must be at least 6 characters. Try again.");
+                    break;
+                case INCORRECT_OLD:
+                    System.out.println("Current password incorrect. Try again.");
+                    break;
+                case DUPLICATE:
+                    System.out.println("Your new password must be different from the old one. Try again.");
+                    break;
+            }
         }
+        System.out.println("Too many failed attempts.");
         pause();
     }
 

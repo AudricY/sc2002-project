@@ -1,6 +1,8 @@
 package control;
 
 import entity.*;
+import util.InputValidator;
+import util.PasswordChangeResult;
 
 public class AuthenticationController {
     private UserManager userManager;
@@ -36,9 +38,9 @@ public class AuthenticationController {
         return currentUser;
     }
 
-    public boolean changePassword(String oldPassword, String newPassword) {
+    private boolean changePassword(String oldPassword, String newPassword) {
         if (currentUser == null || !currentUser.getPassword().equals(oldPassword)) {
-            return false;
+            return false;   
         }
 
         currentUser.setPassword(newPassword);
@@ -47,6 +49,14 @@ public class AuthenticationController {
         }
         userManager.updateUser(currentUser);
         return true;
+    }
+
+    public PasswordChangeResult attemptPasswordChange(String oldPassword, String newPassword, String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) return PasswordChangeResult.MISMATCH;
+        if (!InputValidator.isValidPassword(newPassword)) return PasswordChangeResult.INVALID_FORMAT;
+        if (oldPassword.equals(newPassword)) return PasswordChangeResult.DUPLICATE;
+        if (!changePassword(oldPassword, newPassword)) return PasswordChangeResult.INCORRECT_OLD;
+        return PasswordChangeResult.SUCCESS;
     }
 
     public boolean registerCompanyRepresentative(String name, String email, String password,
