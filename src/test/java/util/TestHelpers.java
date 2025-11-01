@@ -110,7 +110,8 @@ public class TestHelpers {
     public static Application createApplication(String applicationId, String studentId, String internshipId) {
         ApplicationManager applicationManager = ApplicationManager.getInstance();
         applicationManager.addApplication(applicationId, studentId, internshipId);
-        return applicationManager.getApplicationById(applicationId);
+        Application application = applicationManager.getApplicationById(applicationId);
+        return application;
     }
 
     /**
@@ -183,10 +184,9 @@ public class TestHelpers {
      */
     public static WithdrawalRequest createWithdrawalRequest(String withdrawalId, String studentId,
                                                               String applicationId, String reason) {
-        WithdrawalRequest request = new WithdrawalRequest(withdrawalId, studentId, applicationId, reason);
         WithdrawalManager withdrawalManager = WithdrawalManager.getInstance();
-        withdrawalManager.addWithdrawalRequest(request);
-        return request;
+        withdrawalManager.addWithdrawalRequest(withdrawalId, studentId, applicationId, reason);
+        return withdrawalManager.getWithdrawalById(withdrawalId);
     }
 
     /**

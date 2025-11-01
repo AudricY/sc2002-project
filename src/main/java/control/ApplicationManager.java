@@ -104,7 +104,7 @@ public class ApplicationManager {
     public List<Application> getApplicationsByStudentandStatus(String studentId, ApplicationStatus status) {
         return getApplicationsByStudent(studentId)
             .stream()
-            .filter(a -> a.getStatus() != status)
+            .filter(a -> a.getStatus() == status)
             .collect(Collectors.toList());
     }
 

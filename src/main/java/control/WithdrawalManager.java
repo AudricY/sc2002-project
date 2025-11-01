@@ -27,7 +27,9 @@ public class WithdrawalManager {
         FileManager.saveToFile(WITHDRAWALS_FILE, withdrawalRequests);
     }
 
-    public void addWithdrawalRequest(WithdrawalRequest request) {
+    public void addWithdrawalRequest(String requestId, String studentId, String applicationId, String reason) {
+        WithdrawalRequest request = new WithdrawalRequest(requestId, studentId,
+                applicationId, reason);
         withdrawalRequests.add(request);
         saveWithdrawals();
     }

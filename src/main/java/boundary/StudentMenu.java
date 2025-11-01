@@ -7,7 +7,6 @@ import util.IdGenerator;
 import util.PasswordChangeResult;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class StudentMenu extends MenuInterface {
     private AuthenticationController authController;
@@ -187,7 +186,7 @@ public class StudentMenu extends MenuInterface {
             return;
         }
 
-        List<Application> successfulApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.CONFIRMED);
+        List<Application> successfulApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.SUCCESSFUL);
 
         if (successfulApps.isEmpty()) {
             System.out.println("You have no successful applications to accept.");
@@ -221,7 +220,7 @@ public class StudentMenu extends MenuInterface {
     private void requestWithdrawal() {
         printHeader("REQUEST WITHDRAWAL");
 
-        List<Application> applications = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.UNSUCCESSFUL);
+        List<Application> applications = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.PENDING);
 
 
         if (applications.isEmpty()) {
@@ -254,9 +253,7 @@ public class StudentMenu extends MenuInterface {
 
         String reason = getStringInput("Reason for withdrawal: ");
         String requestId = IdGenerator.generateWithdrawalId();
-        WithdrawalRequest request = new WithdrawalRequest(requestId, student.getUserId(),
-                selectedApp.getApplicationId(), reason);
-        withdrawalManager.addWithdrawalRequest(request);
+        withdrawalManager.addWithdrawalRequest(requestId, student.getUserId(), selectedApp.getApplicationId(), reason);
 
         System.out.println("Withdrawal request submitted. Awaiting staff approval.");
         pause();
