@@ -1,21 +1,51 @@
 package util;
 
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IdGenerator {
-    private static final AtomicInteger internshipCounter = new AtomicInteger(1000);
-    private static final AtomicInteger applicationCounter = new AtomicInteger(1000);
-    private static final AtomicInteger withdrawalCounter = new AtomicInteger(1000);
 
-    public static String generateInternshipId() {
-        return "INT" + internshipCounter.incrementAndGet();
+    private static final String FILE_PATH = "id_counters.properties";
+
+    private static AtomicInteger internshipCounter;
+    private static AtomicInteger applicationCounter;
+    private static AtomicInteger withdrawalCounter;
+
+    static {
+        Properties props = FileManager.loadIdProperties(FILE_PATH);
+
+        internshipCounter = new AtomicInteger(
+                Integer.parseInt(props.getProperty("internshipCounter", "1000")));
+        applicationCounter = new AtomicInteger(
+                Integer.parseInt(props.getProperty("applicationCounter", "1000")));
+        withdrawalCounter = new AtomicInteger(
+                Integer.parseInt(props.getProperty("withdrawalCounter", "1000")));
     }
 
-    public static String generateApplicationId() {
-        return "APP" + applicationCounter.incrementAndGet();
+    public static synchronized String generateInternshipId() {
+        int id = internshipCounter.incrementAndGet();
+        saveCounters();
+        return "INT" + id;
     }
 
-    public static String generateWithdrawalId() {
-        return "WD" + withdrawalCounter.incrementAndGet();
+    public static synchronized String generateApplicationId() {
+        int id = applicationCounter.incrementAndGet();
+        saveCounters();
+        return "APP" + id;
+    }
+
+    public static synchronized String generateWithdrawalId() {
+        int id = withdrawalCounter.incrementAndGet();
+        saveCounters();
+        return "WD" + id;
+    }
+
+    private static void saveCounters() {
+        Properties props = new Properties();
+        props.setProperty("internshipCounter", String.valueOf(internshipCounter.get()));
+        props.setProperty("applicationCounter", String.valueOf(applicationCounter.get()));
+        props.setProperty("withdrawalCounter", String.valueOf(withdrawalCounter.get()));
+
+        FileManager.saveIdProperties(props, FILE_PATH, "ID counters for Internship, Application, Withdrawal");
     }
 }

@@ -71,4 +71,24 @@ public class FileManager {
 
         return records;
     }
+
+    public static Properties loadIdProperties(String filePath) {
+        Properties props = new Properties();
+        try (FileInputStream fis = new FileInputStream(DATA_DIR + filePath)) {
+            props.load(fis);
+        } catch (FileNotFoundException e) {
+            // File not found → return empty properties
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return props;
+    }
+
+    public static void saveIdProperties(Properties props, String filePath, String comment) {
+        try (FileOutputStream fos = new FileOutputStream(DATA_DIR + filePath)) {
+            props.store(fos, comment);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

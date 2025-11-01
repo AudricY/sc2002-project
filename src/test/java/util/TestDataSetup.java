@@ -15,6 +15,7 @@ import java.io.IOException;
 public class TestDataSetup {
 
     private static final String DATA_DIR = "data/";
+    private static final String ID_PROPERTIES_FILE = "id_counters.properties";
 
     /**
      * Creates all necessary test CSV files with sample data.
@@ -91,6 +92,11 @@ public class TestDataSetup {
      */
     public static void initializeTestData() {
         TestStateManager.ensureDataDirectory();
+        File propsFile = new File(DATA_DIR + ID_PROPERTIES_FILE);
+        if (propsFile.exists()) {
+            propsFile.delete();
+            System.out.println("Deleted old properties file: " + ID_PROPERTIES_FILE);
+        }
         createTestCSVFiles();
         loadTestUsers();
     }
