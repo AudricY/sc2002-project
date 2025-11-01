@@ -26,3 +26,5 @@ buildNumber.properties
 
 # Ignore all .dat files
 *.dat
+# Ignore all properties files
+*.properties
