@@ -1,0 +1,548 @@
+---
+config:
+  layout: elk
+---
+classDiagram
+    InternshipPlacementSystem ..> LoginMenu : uses
+    InternshipPlacementSystem ..> FileManager : uses
+    InternshipPlacementSystem ..> UserManager : uses
+    InternshipPlacementSystem ..> Scanner : uses
+    UserManager "1" o-- "0..*" User : manages
+    UserManager ..> FileManager : uses
+    MenuInterface <|-- LoginMenu : inherits
+    User <|-- Student : inherits
+    User <|-- CompanyRepresentative : inherits
+    User <|-- CareerCenterStaff : inherits
+    User --> UserRole : has role
+    MenuInterface --> Scanner : uses input
+    LoginMenu ..> AuthenticationController : uses for login/register
+    LoginMenu --> User : creates/login
+    LoginMenu ..> StudentMenu : navigates to
+    LoginMenu ..> CompanyRepresentativeMenu : navigates to
+    LoginMenu ..> CareerCenterStaffMenu : navigates to
+    AuthenticationController ..> UserManager : uses
+    AuthenticationController --> User : authenticates
+    PasswordChangeResult ..> AuthenticationController : produced by
+    StudentMenu ..> AuthenticationController : logout/change password
+    StudentMenu --> Student : context user
+    StudentMenu ..> InternshipManager : get internships
+    StudentMenu ..> ApplicationManager : apply/manage internships
+    StudentMenu ..> WithdrawalManager : withdraw applications
+    StudentMenu ..> FilterManager : filter internships
+    StudentMenu ..> Scanner : read input
+    StudentMenu --|> MenuInterface : inherits
+    StudentMenu ..> FilterSettings : reference
+    StudentMenu ..> Internship : view
+    StudentMenu ..> Application : view
+    StudentMenu --> ApplicationStatus : status enum
+    StudentMenu ..> IdGenerator : generate IDs
+    CompanyRepresentativeMenu ..> AuthenticationController : logout/change password
+    CompanyRepresentativeMenu --> CompanyRepresentative : context user
+    CompanyRepresentativeMenu --|> MenuInterface : inherits
+    CompanyRepresentativeMenu ..> InternshipManager : manage internships
+    CompanyRepresentativeMenu ..> ApplicationManager : manage applications
+    CompanyRepresentativeMenu ..> UserManager : retrieve users
+    CompanyRepresentativeMenu ..> InputValidator : validate inputs
+    CompanyRepresentativeMenu ..> DateUtils : handle dates
+    CompanyRepresentativeMenu ..> Internship : view
+    CompanyRepresentativeMenu ..> Application : view
+    CompanyRepresentativeMenu ..> FilterSettings : reference
+    CompanyRepresentativeMenu --> InternshipLevel : level enum
+    CompanyRepresentativeMenu --> InternshipStatus : status enum
+    CareerCenterStaffMenu ..> AuthenticationController : logout/change password
+    CareerCenterStaffMenu --> CareerCenterStaff : context user
+    CareerCenterStaffMenu --|> MenuInterface : inherits
+    CareerCenterStaffMenu ..> UserManager : manage users
+    CareerCenterStaffMenu ..> InternshipManager : approve internships
+    CareerCenterStaffMenu ..> ApplicationManager : approve/reject applications
+    CareerCenterStaffMenu ..> WithdrawalManager : approve/reject withdrawals
+    CareerCenterStaffMenu ..> CompanyRepresentative : view
+    CareerCenterStaffMenu ..> Internship : view
+    InputValidator ..> DateUtils : uses
+    IdGenerator ..> FileManager : uses
+    Internship --> InternshipLevel : has
+    Internship --> InternshipStatus : has
+    class InternshipPlacementSystem{
+        +main(args: String[]) void &lt;&lt;static&gt;&gt;
+    }
+    class FileManager{
+        -DATA_DIR: String &lt;&lt;static, final&gt;&gt;
+        +saveToFile&lt;T&gt;(filename: String, data: List&lt;T&gt;) void &lt;&lt;static&gt;&gt;
+        +loadFromFile&lt;T&gt;(filename: String) List&lt;T&gt; &lt;&lt;static&gt;&gt;
+        +ensureDataDirectory() void &lt;&lt;static&gt;&gt;
+        +readCSV(filename: String, skipfirst: boolean) List&lt;String[]&gt; &lt;&lt;static&gt;&gt;
+        +loadIdProperties(filePath: String) Properties &lt;&lt;static&gt;&gt;
+        +saveIdProperties(props: Properties, filePath: String, comment: String) void &lt;&lt;static&gt;&gt;
+    }
+    class UserManager{
+        -USERS_FILE: String &lt;&lt;static, final&gt;&gt;
+        -users: List&lt;User&gt;
+        -instance: UserManager &lt;&lt;static&gt;&gt;
+        -UserManager()
+        +getInstance() UserManager &lt;&lt;static&gt;&gt;
+        +saveUsers() void
+        +authenticateUser(userId: String, password: String) User
+        +userExists(userId: String) boolean
+        +addUser(user: User) void
+        +getUserById(userId: String) User
+        +updateUser(user: User) void
+        +getPendingRepresentatives() &lt;ListCompanyRepresentative&gt;
+        +getAllStudents() List&lt;Student&gt;
+        +reviewRepresentative(rep: CompanyRepresentative, decision: int) void
+        +loadUsersFromCSV(filename: String, role: UserRole) void
+    }
+    class User {
+        <<Abstract, Serializable>>
+    -serialVersionUID: long &lt;&lt;static, final&gt;&gt;
+    #userId: String
+    #password: String
+    #name: String
+    #email: String
+    #role: UserRole
+    #firstLogin: boolean
+    +User(userId: String, password: String, name: String, email: String, role: UserRole)
+    +getUserId() String
+    +setUserId(userId: String) void
+    +getPassword(): String
+    +setPassword(password: String) void
+    +getName() String
+    +setName(name: String) void
+    +getEmail() String
+    +setEmail(email: String) void
+    +getRole() UserRole
+    +setRole(role: UserRole) void
+    +isFirstLogin() boolean
+    +setFirstLogin(firstLogin: boolean) void
+    +getProfileInfo() String &lt;&lt;abstract&gt;&gt;
+    }
+    class UserRole {
+        <<Enumeration>>
+        STUDENT
+        COMPANY_REPRESENTATIVE
+        CAREER_CENTER_STAFF
+    }
+    class Student {
+        -serialVersionUID: long &lt;&lt;static, final&gt;&gt;
+        -yearOfStudy: int;
+        -major: String;
+        -confirmedPlacementId: String;
+        +Student(userId: String, password: String,name: String, email: String, yearOfStudy: int, major: String)
+        +getYearOfStudy() int
+        +setYearOfStudy(yearOfStudy: int) void
+        +getMajor() String
+        +setMajor(major: String) void
+        +getConfirmedPlacementId() String
+        +setConfirmedPlacementId(confirmedPlacementId: String) void
+        +hasConfirmedPlacement() boolean
+        +getProfileInfo() String
+    }
+    class CompanyRepresentative {
+        -serialVersionUID: long &lt;&lt;static, final&gt;&gt;
+        -companyName: String
+        -department: String
+        -position: String
+        -approvalStatus: ApprovalStatus
+        +CompanyRepresentative(userId: String, password: String, name: String, email: String, companyName: String, department: String, position: String)
+        +getCompanyName() String
+        +setCompanyName(companyName: String) void
+        +getDepartment() String
+        +setDepartment(department: String) void
+        +getPosition() String
+        +setPosition(position: String) void
+        +getApprovalStatus() ApprovalStatus
+        +setApprovalStatus(approvalStatus: ApprovalStatus) void
+        +isApproved() boolean
+        +getProfileInfo() String
+    }
+    class CareerCenterStaff {
+        -serialVersionUID: long &lt;&lt;static, final&gt;&gt;
+        -staffDepartment: String
+        +CareerCenterStaff(userId: String, password: String, name: String, email: String, staffDepartment: String)
+        +getStaffDepartment() String
+        +setStaffDepartment(staffDepartment: String) void
+        +getProfileInfo() String
+    }
+    class MenuInterface {
+        <<Abstract>>
+        #scanner: Scanner
+        +MenuInterface(scanner: Scanner)
+        +displayMenu() void &lt;&lt;abstract&gt;&gt;
+        +handleMenuChoice(choice: int) void &lt;&lt;abstract&gt;&gt;
+        #clearScreen() void
+        #pause() void
+        #printHeader(title: String) void
+        #getIntInput(prompt: String) int
+        #getStringInput(prompt: String) String
+    }
+    class LoginMenu {
+        -authController: AuthenticationController
+        +LoginMenu(scanner: Scanner)
+        +displayMenu() void
+        +handleMenuChoice(choice: int) void
+        -handleLogin() void
+        -postLoginFlow(user: User) void
+        -handlePasswordChange() boolean
+        -handleRegistration() void
+        -navigateToUserMenu void
+        +getAuthController() AuthenticationController
+    }
+    class AuthenticationController {
+        -userManager: UserManager;
+        -currentUser: User;
+        +AuthenticationController()
+        +login(userId: String, password: String) boolean
+        +logout() void
+        +getCurrentUser() User
+        +changePassword(oldPassword: String, newPassword: String) boolean
+        +attemptPasswordChange(oldPassword: String, newPassword: String, confirmPassword: String) PasswordChangeResult
+        +registerCompanyRepresentative(name: String, email: String, password: String, companyName: String, department: String, position: String) boolean
+        +userExists(userId: String) boolean
+    }
+    class PasswordChangeResult {
+        <<Enumeration>>
+        SUCCESS
+        MISMATCH
+        INVALID_FORMAT
+        DUPLICATE
+        INCORRECT_OLD
+    }
+    class StudentMenu {
+        -authController: AuthenticationController
+        -student: Student
+        -internshipManager: InternshipManager
+        -applicationManager: ApplicationManager
+        -withdrawalManager: WithdrawalManager
+        -filterManager: FilterManager
+        +StudentMenu(scanner: Scanner, authController: AuthenticationController)
+        +displayMenu() void
+        +void handleMenuChoice(choice: int)
+        -viewAvailableInternships() void
+        -viewMyApplications() void
+        -applyForInternship() void
+        -acceptPlacement() void
+        -requestWithdrawal() void
+        -viewProfile() void
+        -changePassword() void
+        -configureFilters() void
+    }
+    class CompanyRepresentativeMenu {
+        -authController: AuthenticationController
+        -representative: CompanyRepresentative
+        -internshipManager: InternshipManager
+        -applicationManager: ApplicationManager
+        -userManager: UserManager
+        +displayMenu() void
+        +handleMenuChoice(choice: int) void
+        -createInternship() void
+        -viewMyInternships() void
+        -viewAllInternships() void
+        -viewFilteredInternships() void
+        -editInternship() void
+        -toggleVisibility() void
+        -viewApplicationsForInternship() void
+        -reviewApplication() void
+        -viewProfile() void
+        -changePassword() void
+    }
+    class CareerCenterStaffMenu {
+        -authController: AuthenticationController
+        -staff: CareerCenterStaff
+        -userManager: UserManager
+        -internshipManager: InternshipManager
+        -applicationManager: ApplicationManager
+        -withdrawalManager: WithdrawalManager
+        +CareerCenterStaffMenu(scanner: Scanner, authController: AuthenticationController)
+        +displayMenu() void
+        +handleMenuChoice(choice: int) void
+        -reviewRepresentatives() void
+        -reviewInternships() void
+        -reviewWithdrawals() void
+        -generateReports() void
+        -generateAllInternshipsReport() void
+        -generateFilteredInternshipsReport() void
+        -generateStudentApplicationsSummary() void
+        -viewAllStudents() void
+        -viewProfile() void
+        -changePassword() void
+    }
+    class ApplicationStatus {
+        <<Enumeration>>
+        PENDING
+        SUCCESSFUL
+        UNSUCCESSFUL
+        CONFIRMED
+    }
+    class InternshipLevel {
+        <<Enumeration>>
+        BASIC
+        INTERMEDIATE
+        ADVANCED
+    }
+    class InternshipStatus {
+        <<Enumeration>>
+        PENDING
+        APPROVED
+        REJECTED
+        FILLED
+    }
+    class InputValidator {
+        +isValidEmail(email: String) boolean &lt;&lt;static&gt;&gt;
+        +isValidPassword(password: String) boolean &lt;&lt;static&gt;&gt;
+        +isValidDate(date: String) boolean &lt;&lt;static&gt;&gt;
+        +isPositiveInteger(input: String) boolean &lt;&lt;static&gt;&gt;
+        +isValidRange(value: int, min: int, max: int) boolean &lt;&lt;static&gt;&gt;
+    }
+    class IdGenerator {
+        -FILE_PATH: String &lt;&lt;static final&gt;&gt;
+        -internshipCounter: AtomicInteger &lt;&lt;static&gt;&gt;
+        -applicationCounter: AtomicInteger &lt;&lt;static&gt;&gt;
+        -withdrawalCounter: AtomicInteger &lt;&lt;static&gt;&gt;
+        +generateInternshipId() String &lt;&lt;static synchronized&gt;&gt;
+        +generateApplicationId() String &lt;&lt;static synchronized&gt;&gt;
+        +generateWithdrawalId() String &lt;&lt;static synchronized&gt;&gt;
+        -saveCounters() void &lt;&lt;static&gt;&gt;
+    }
+    class DateUtils {
+        +FORMATTER: String &lt;&lt;static final&gt;&gt;
+        +parseDate(date: String) LocalDate &lt;&lt;static&gt;&gt;
+        +formatDate(date: LocalDate) String &lt;&lt;static&gt;&gt;
+    }
+    class Internship {
+        <<Serializable>>
+        -serialVersionUID: long &lt;&lt;static final&gt;&gt;
+        -internshipId: String
+        -title: String
+        -description: String
+        -level: InternshipLevel
+        -preferredMajor: String
+        -openingDate: LocalDate
+        -closingDate: LocalDate
+        -status: InternshipStatus
+        -companyName: String
+        -representativeId: String
+        -totalSlots: int
+        -confirmedSlots: int
+        -visible: boolean
+        +Internship(internshipId: String, title: String, description: String, level: InternshipLevel, preferredMajor: String, openingDate: LocalDate, closingDate: LocalDate, companyName: String, representativeId: String, totalSlots: int)
+        +getInternshipId() String
+        +setInternshipId(internshipId: String) void
+        +getTitle() String
+        +setTitle(title: String) void
+        +getDescription() String
+        +setDescription(description: String) void
+        +getLevel() InternshipLevel
+        +setLevel(level: InternshipLevel) void
+        +getPreferredMajor() String
+        +setPreferredMajor(preferredMajor: String) void
+        +getOpeningDate() LocalDate
+        +setOpeningDate(openingDate: LocalDate) void
+        +getClosingDate() LocalDate
+        +setClosingDate(closingDate: LocalDate) void
+        +getStatus() InternshipStatus
+        +setStatus(status: InternshipStatus) void
+        +getCompanyName() String
+        +setCompanyName(companyName: String) void
+        +getRepresentativeId() String
+        +setRepresentativeId(representativeId: String) void
+        +getTotalSlots() int
+        +setTotalSlots(totalSlots: int) void
+        +getConfirmedSlots() int
+        +setConfirmedSlots(confirmedSlots: int) void
+        +incrementConfirmedSlots() void
+        +decrementConfirmedSlots() void
+        +isVisible() boolean
+        +setVisible(visible: boolean) void
+        +isApproved() boolean
+        +isFilled() boolean
+        +hasAvailableSlots() boolean
+    }
+    class Application {
+        <<Serializable>>
+        - serialVersionUID : long &lt;&lt;static final&gt;&gt;
+        - applicationId : String
+        - studentId : String
+        - internshipId : String
+        - status : ApplicationStatus
+        - applicationDate : LocalDateTime
+        + Application(applicationId: String, studentId: String, internshipId: String)
+        + getApplicationId() String
+        + setApplicationId(applicationId: String) void
+        + getStudentId() String
+        + setStudentId(studentId: String) void
+        + getInternshipId() String
+        + setInternshipId(internshipId: String) void
+        + getStatus() ApplicationStatus
+        + setStatus(status: ApplicationStatus) void
+        + getApplicationDate() LocalDateTime
+        + setApplicationDate(applicationDate: LocalDateTime) void
+    }
+    class FilterSettings {
+        <<Serializable>>
+        - serialVersionUID: long &lt;&lt;static final&gt;&gt;
+        - userId : String
+        - levelFilter : InternshipLevel
+        - majorFilter : String
+        - statusFilter : InternshipStatus
+        - sortBy : SortCriteria
+        + FilterSettings(userId: String)
+        + getUserId() String
+        + getLevelFilter() InternshipLevel
+        + setLevelFilter(levelFilter: InternshipLevel) void
+        + getMajorFilter() String
+        + setMajorFilter(majorFilter: String) void
+        + getStatusFilter() InternshipStatus
+        + setStatusFilter(statusFilter: InternshipStatus) void
+        + getSortBy() SortCriteria
+        + setSortBy(sortBy: SortCriteria) void
+        + getComparator() Comparator<Internship>
+    }
+    class SortCriteria {
+        <<Enumeration>>
+        ALPHABETICAL
+        OPENING_DATE
+        CLOSING_DATE
+        LEVEL
+    }
+    class Comparator {
+        <<Interface>>
+    }
+    FilterSettings --> SortCriteria : uses
+    FilterSettings --> InternshipLevel : filter by
+    FilterSettings --> InternshipStatus : filter by
+    FilterSettings ..> Comparator : returns
+    FilterSettings ..> Internship : comparator target
+    class FilterManager {
+        - FILTERS_FILE: String &lt;&lt;static, final&gt;&gt;
+        - userFilters: Map&lt;String, FilterSettings&gt;
+        - instance: FilterManager &lt;&lt;static&gt;&gt;
+        - FilterManager()
+        + static getInstance() FilterManager
+        + saveFilters() void
+        + getFilterSettings(userId: String) FilterSettings
+        + updateFilterSettings(settings: FilterSettings) void
+    }
+    FilterManager --> "1..*" FilterSettings : manages
+    FilterManager ..> FileManager : uses for file IO
+    FilterManager ..> UserManager : accesses user data
+    FilterManager ..> User : reference
+    FilterManager ..> Student : for default filters
+    FilterManager --> InternshipLevel : sets filter level
+    class InternshipManager {
+        - INTERNSHIPS_FILE: String &lt;&lt;static, final&gt;&gt;
+        - internships: List&lt;Internship&gt;
+        - instance: InternshipManager &lt;static&gt;
+        - InternshipManager()
+        + static getInstance() InternshipManager
+        + saveInternships() void
+        + addInternship(internshipId: String, title: String, description: String, level: InternshipLevel, preferredMajor: String, openingDate: LocalDate, closingDate: LocalDate, companyName: String, representativeId: String, totalSlots: int) void
+        + getInternshipById(internshipId: String) Internship
+        + updateInternship(internship: Internship) void
+        + getInternshipsByRepresentative(representativeId: String) List&lt;Internship&gt;
+        + getVisibleInternshipsForStudent(student: Student) List&lt;Internship&gt;
+        - isEligibleForInternship(student: Student, internship: Internship) boolean
+        + getPendingInternships() List&lt;Internship&gt;
+        + filterInternships(list: List~Internship~, settings: FilterSettings) List&lt;Internship&gt;
+        + countInternshipsByRepresentative(representativeId: String) int
+        + reviewInternship(internship: Internship, decision: int) void
+        + editInternshipField(internship: Internship, field: int, newValue: String) void
+        + toggleInternshipVisibility(internship: Internship) void
+        + getAllInternships(groupByField: Function~Internship, K~) Map&ltK, List&ltInternship&gt&gt
+        + getAllInternships() List~Internship~
+    }
+    InternshipManager --> "1..*" Internship : manages
+    InternshipManager ..> FileManager : uses for file IO
+    InternshipManager ..> FilterSettings : uses for filtering
+    InternshipManager ..> InternshipLevel : uses (filter)
+    InternshipManager ..> InternshipStatus : uses (filter)
+    InternshipManager ..> Student : eligibility check
+    InternshipManager ..> LocalDate : date fields
+    InternshipManager ..> Function : for grouping
+    class ApplicationManager {
+        -APPLICATIONS_FILE: String &lt;&lt;static, final&gt;&gt;
+        -applications: List~Application~
+        -instance: ApplicationManager &lt;&lt;static&gt;&gt;
+        -ApplicationManager()
+        +getInstance(): ApplicationManager
+        +saveApplications(): void
+        +addApplication(applicationId: String, studentId: String, internshipId: String): boolean
+        +getApplicationById(applicationId: String): Application
+        +updateApplication(application: Application): void
+        +removeApplication(application: Application): void
+        +getApplicationsByStudent(studentId: String): List~Application~
+        +getApplicationsByInternship(internshipId: String): List~Application~
+        +countPendingApplicationsByStudent(studentId: String): int
+        +hasAppliedToInternship(studentId: String, internshipId: String): boolean
+        +reviewApplication(application: Application, decision: int): void
+        +getApplicationsByInternshipandStatus(internshipId: String, status: ApplicationStatus): List~Application~
+        +getApplicationsByStudentandStatus(studentId: String, status: ApplicationStatus): List~Application~
+        +getApplicationCount(apps: List~Application~, status: ApplicationStatus): long
+        +handleApplicationAcceptance(student: Student, application: Application): void
+    }
+    ApplicationManager --> "1..*" Application : manages
+    Application --> ApplicationStatus : has
+    ApplicationManager --> InternshipManager : uses
+    ApplicationManager --> UserManager : uses
+    ApplicationManager --> FileManager : uses
+    ApplicationManager --> Internship : retrieves
+    ApplicationManager --> Student : updates
+    class WithdrawalManager {
+        -WITHDRAWALS_FILE: String  &lt;&lt;static, final&gt;&gt;
+        -withdrawalRequests: List~WithdrawalRequest~
+        -instance: WithdrawalManager  &lt;&lt;static&gt;&gt;
+        -WithdrawalManager()
+        +getInstance(): WithdrawalManager
+        +saveWithdrawals(): void
+        +addWithdrawalRequest(requestId: String, studentId: String, applicationId: String, reason: String): void
+        +getWithdrawalById(requestId: String): WithdrawalRequest
+        +updateWithdrawalRequest(request: WithdrawalRequest): void
+        +getPendingWithdrawals(): List~WithdrawalRequest~
+        +getWithdrawalsByStudent(studentId: String): List~WithdrawalRequest~
+        +hasPendingWithdrawal(applicationId: String): boolean
+        +reviewWithdrawal(request: WithdrawalRequest, staffId: String, decision: int): void
+    }   
+    WithdrawalManager --> "1..*" WithdrawalRequest : manages
+    WithdrawalRequest --> ApprovalStatus : has
+    WithdrawalManager --> FileManager : uses
+    WithdrawalManager --> ApplicationManager : uses
+    WithdrawalManager --> UserManager : uses
+    WithdrawalManager --> InternshipManager : uses
+    WithdrawalManager --> Application : checks
+    WithdrawalManager --> Student : updates
+    WithdrawalManager --> Internship : updates
+    class ApprovalStatus {
+        <<Enumeration>>
+            PENDING
+            APPROVED
+            REJECTED
+    }
+    class WithdrawalRequest {
+        <<Serializable>>
+        - serialVersionUID: long &lt;&lt;static, final&gt;&gt;
+        - requestId : String
+        - studentId : String
+        - applicationId : String
+        - reason : String
+        - status : ApprovalStatus
+        - requestDate : LocalDateTime
+        - reviewedByStaffId : String
+        - reviewDate : LocalDateTime
+        --
+        + WithdrawalRequest(requestId: String, studentId: String, applicationId: String, reason: String)
+        + getRequestId() : String
+        + setRequestId(requestId: String) : void
+        + getStudentId() : String
+        + setStudentId(studentId: String) : void
+        + getApplicationId() : String
+        + setApplicationId(applicationId: String) : void
+        + getReason() : String
+        + setReason(reason: String) : void
+        + getStatus() : ApprovalStatus
+        + setStatus(status: ApprovalStatus) : void
+        + getRequestDate() : LocalDateTime
+        + setRequestDate(requestDate: LocalDateTime) : void
+        + getReviewedByStaffId() : String
+        + setReviewedByStaffId(reviewedByStaffId: String) : void
+        + getReviewDate() : LocalDateTime
+        + setReviewDate(reviewDate: LocalDateTime) : void
+    }
+    WithdrawalRequest --> LocalDateTime : uses
