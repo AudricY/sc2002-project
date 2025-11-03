@@ -139,18 +139,22 @@ public class StudentMenu extends MenuInterface {
             return;
         }
 
+        FilterSettings settings = filterManager.getFilterSettings(student.getUserId());
         List<Internship> internships = internshipManager.getVisibleInternshipsForStudent(student);
+        internships = internshipManager.filterInternships(internships, settings);
 
         if (internships.isEmpty()) {
             System.out.println("No internships available to apply.");
-            pause();
-            return;
-        }
-
-        for (int i = 0; i < internships.size(); i++) {
-            Internship intern = internships.get(i);
-            System.out.printf("%d. [%s] %s - %s\n", i + 1, intern.getInternshipId(),
-                    intern.getTitle(), intern.getCompanyName());
+        } else {
+            for (int i = 0; i < internships.size(); i++) {
+                Internship intern = internships.get(i);
+                System.out.printf("\n%d. [%s] %s\n", i + 1, intern.getInternshipId(), intern.getTitle());
+                System.out.printf("   Company: %s\n", intern.getCompanyName());
+                System.out.printf("   Level: %s | Major: %s\n", intern.getLevel(), intern.getPreferredMajor());
+                System.out.printf("   Slots: %d/%d available\n",
+                        intern.getTotalSlots() - intern.getConfirmedSlots(), intern.getTotalSlots());
+                System.out.printf("   Period: %s to %s\n", DateUtils.formatDate(intern.getOpeningDate()), DateUtils.formatDate(intern.getClosingDate()));
+            }
         }
 
         int choice = getIntInput("\nSelect internship (0 to cancel): ");
@@ -170,10 +174,10 @@ public class StudentMenu extends MenuInterface {
         }
 
         String appId = IdGenerator.generateApplicationId();
-        applicationManager.addApplication(appId, student.getUserId(),
+        boolean success = applicationManager.addApplication(appId, student.getUserId(),
                 selectedInternship.getInternshipId());
-
-        System.out.println("Application submitted successfully!");
+        if(success) System.out.println("Application submitted successfully!");
+        else System.out.println("Application failed. Past closing date.");
         pause();
     }
 

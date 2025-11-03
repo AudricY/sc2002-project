@@ -4,6 +4,7 @@ import entity.*;
 import util.FileManager;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 public class ApplicationManager {
     private static final String APPLICATIONS_FILE = "applications.dat";
@@ -25,11 +26,17 @@ public class ApplicationManager {
         FileManager.saveToFile(APPLICATIONS_FILE, applications);
     }
 
-    public void addApplication(String applicationId, String studentId, String internshipId) {
+    public boolean addApplication(String applicationId, String studentId, String internshipId) {
+        // Enforce date limits
+        InternshipManager internshipManager = InternshipManager.getInstance();
+        LocalDate closingDate = internshipManager.getInternshipById(internshipId).getClosingDate();
+        LocalDate today = LocalDate.now();
+        if (today.isAfter(closingDate)) return false;
         Application application = new Application(applicationId, studentId,
                 internshipId);
         applications.add(application);
         saveApplications();
+        return true;
     }
 
     public Application getApplicationById(String applicationId) {
