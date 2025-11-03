@@ -1,6 +1,10 @@
 # UML Class Diagram
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 classDiagram
     %% Enumerations
     class UserRole {
@@ -30,6 +34,7 @@ classDiagram
         PENDING
         SUCCESSFUL
         UNSUCCESSFUL
+        CONFIRMED
     }
 
     class ApprovalStatus {
@@ -45,6 +50,15 @@ classDiagram
         OPENING_DATE
         CLOSING_DATE
         LEVEL
+    }
+
+    class PasswordChangeResult {
+        <<enumeration>>
+        SUCCESS
+        MISMATCH
+        INVALID_FORMAT
+        DUPLICATE
+        INCORRECT_OLD
     }
 
     %% Entity Classes
@@ -103,6 +117,8 @@ classDiagram
         +incrementConfirmedSlots()
         +decrementConfirmedSlots()
         +hasAvailableSlots() boolean
+        +isApproved() boolean
+        +isFilled() boolean
     }
 
     class Application {
@@ -111,7 +127,6 @@ classDiagram
         -String internshipId
         -ApplicationStatus status
         -LocalDateTime applicationDate
-        -boolean confirmed
         +getters/setters()
     }
 
@@ -146,6 +161,7 @@ classDiagram
         +handleMenuChoice(int)*
         #pause()
         #clearScreen()
+        #printHeader(String)
         #getIntInput(String) int
         #getStringInput(String) String
     }
@@ -189,10 +205,13 @@ classDiagram
         -UserManager instance
         +getInstance()$ UserManager
         +authenticateUser(String, String) User
+        +userExists(String) boolean
         +addUser(User)
         +getUserById(String) User
         +updateUser(User)
-        +getPendingRepresentatives() List
+        +getPendingRepresentatives() List~CompanyRepresentative~
+        +getAllStudents() List~Student~
+        +reviewRepresentative(CompanyRepresentative, int)
         +loadUsersFromCSV(String, UserRole)
         +saveUsers()
     }
@@ -203,11 +222,19 @@ classDiagram
         -List~Internship~ internships
         -InternshipManager instance
         +getInstance()$ InternshipManager
-        +addInternship(Internship)
+        +addInternship(String, String, String, InternshipLevel, String, LocalDate, LocalDate, String, String, int)
         +getInternshipById(String) Internship
         +updateInternship(Internship)
-        +getVisibleInternshipsForStudent(Student) List
-        +filterInternships(List, FilterSettings) List
+        +getInternshipsByRepresentative(String) List~Internship~
+        +getVisibleInternshipsForStudent(Student) List~Internship~
+        +getPendingInternships() List~Internship~
+        +filterInternships(List, FilterSettings) List~Internship~
+        +countInternshipsByRepresentative(String) int
+        +reviewInternship(Internship, int)
+        +editInternshipField(Internship, int, String)
+        +toggleInternshipVisibility(Internship)
+        +getAllInternships() List~Internship~
+        +getAllInternships(Function) Map
         +saveInternships()
     }
 
@@ -217,11 +244,19 @@ classDiagram
         -List~Application~ applications
         -ApplicationManager instance
         +getInstance()$ ApplicationManager
-        +addApplication(Application)
+        +addApplication(String, String, String) boolean
+        +getApplicationById(String) Application
         +updateApplication(Application)
-        +getApplicationsByStudent(String) List
-        +getApplicationsByInternship(String) List
+        +removeApplication(Application)
+        +getApplicationsByStudent(String) List~Application~
+        +getApplicationsByInternship(String) List~Application~
         +countPendingApplicationsByStudent(String) int
+        +hasAppliedToInternship(String, String) boolean
+        +reviewApplication(Application, int)
+        +getApplicationsByInternshipandStatus(String, ApplicationStatus) List~Application~
+        +getApplicationsByStudentandStatus(String, ApplicationStatus) List~Application~
+        +getApplicationCount(List, ApplicationStatus) long
+        +handleApplicationAcceptance(Student, Application)
         +saveApplications()
     }
 
@@ -231,9 +266,13 @@ classDiagram
         -List~WithdrawalRequest~ withdrawalRequests
         -WithdrawalManager instance
         +getInstance()$ WithdrawalManager
-        +addWithdrawalRequest(WithdrawalRequest)
-        +getPendingWithdrawals() List
+        +addWithdrawalRequest(String, String, String, String)
+        +getWithdrawalById(String) WithdrawalRequest
         +updateWithdrawalRequest(WithdrawalRequest)
+        +getPendingWithdrawals() List~WithdrawalRequest~
+        +getWithdrawalsByStudent(String) List~WithdrawalRequest~
+        +hasPendingWithdrawal(String) boolean
+        +reviewWithdrawal(WithdrawalRequest, String, int)
         +saveWithdrawals()
     }
 
@@ -255,8 +294,10 @@ classDiagram
         +login(String, String) boolean
         +logout()
         +getCurrentUser() User
-        +changePassword(String, String) boolean
-        +registerCompanyRepresentative(...) boolean
+        +attemptPasswordChange(String, String, String) PasswordChangeResult
+        +registerCompanyRepresentative(String, String, String, String, String, String) boolean
+        +userExists(String) boolean
+        -changePassword(String, String) boolean
     }
 
     %% Utility Classes
@@ -264,8 +305,10 @@ classDiagram
         <<utility>>
         +saveToFile(String, List)$
         +loadFromFile(String)$ List
-        +readCSV(String)$ List~String[]~
+        +readCSV(String, boolean)$ List~String[]~
         +ensureDataDirectory()$
+        +loadIdProperties(String)$ Properties
+        +saveIdProperties(Properties, String, String)$
     }
 
     class InputValidator {
@@ -273,16 +316,22 @@ classDiagram
         +isValidEmail(String)$ boolean
         +isValidPassword(String)$ boolean
         +isValidDate(String)$ boolean
-        +parseDate(String)$ LocalDate
         +isPositiveInteger(String)$ boolean
+        +isValidRange(int, int, int)$ boolean
     }
 
     class IdGenerator {
         <<utility>>
-        +generateUserId(String)$ String
         +generateInternshipId()$ String
         +generateApplicationId()$ String
         +generateWithdrawalId()$ String
+    }
+
+    class DateUtils {
+        <<utility>>
+        +FORMATTER$ DateTimeFormatter
+        +parseDate(String)$ LocalDate
+        +formatDate(LocalDate)$ String
     }
 
     %% Inheritance Relationships
@@ -343,9 +392,14 @@ classDiagram
     FilterManager ..> FileManager : uses
     CompanyRepresentativeMenu ..> InputValidator : uses
     LoginMenu ..> InputValidator : uses
+    StudentMenu ..> InputValidator : uses
     CompanyRepresentativeMenu ..> IdGenerator : uses
     StudentMenu ..> IdGenerator : uses
-    AuthenticationController ..> IdGenerator : uses
+    CompanyRepresentativeMenu ..> DateUtils : uses
+    CareerCenterStaffMenu ..> DateUtils : uses
+    InputValidator ..> DateUtils : uses
+    IdGenerator ..> FileManager : uses
+    AuthenticationController --> PasswordChangeResult : returns
 ```
 
 ## OO Principles Applied

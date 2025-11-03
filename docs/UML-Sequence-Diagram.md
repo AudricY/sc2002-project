@@ -17,6 +17,7 @@ sequenceDiagram
     participant StaffMenu as CareerCenterStaffMenu
     participant AppMgr as ApplicationManager
     participant Application
+    participant Student
 
     %% Login Flow
     rect rgb(240, 248, 255)
@@ -62,12 +63,11 @@ sequenceDiagram
             CRMenu->>+IdGen: generateInternshipId()
             IdGen-->>-CRMenu: new internship ID
 
-            CRMenu->>+Internship: new Internship(...)
+            CRMenu->>+IntMgr: addInternship(id, title, desc, level, major, dates, company, repId, slots)
+            IntMgr->>+Internship: new Internship(...)
             Internship->>Internship: set status = PENDING
             Internship->>Internship: set visible = true
-            Internship-->>-CRMenu: Internship object
-
-            CRMenu->>+IntMgr: addInternship(internship)
+            Internship-->>-IntMgr: Internship object
             IntMgr->>IntMgr: add to list
             IntMgr->>+FileMgr: saveToFile(internships)
             FileMgr->>FileMgr: serialize to file
@@ -83,11 +83,10 @@ sequenceDiagram
         StaffMenu->>+IntMgr: getPendingInternships()
         IntMgr-->>-StaffMenu: list of pending internships
 
-        StaffMenu->>StaffMenu: Staff selects & approves
-        StaffMenu->>+Internship: setStatus(APPROVED)
-        Internship-->>-StaffMenu: status updated
-
-        StaffMenu->>+IntMgr: updateInternship(internship)
+        StaffMenu->>StaffMenu: Staff selects internship
+        StaffMenu->>+IntMgr: reviewInternship(internship, decision=1)
+        IntMgr->>+Internship: setStatus(APPROVED)
+        Internship-->>-IntMgr: status updated
         IntMgr->>+FileMgr: saveToFile(internships)
         FileMgr-->>-IntMgr: saved
         IntMgr-->>-StaffMenu: success
@@ -114,10 +113,9 @@ sequenceDiagram
         CRMenu-->>CR: Show internships
 
         CR->>CRMenu: Select internship to toggle
-        CRMenu->>+Internship: setVisible(!currentVisibility)
-        Internship-->>-CRMenu: visibility updated
-
-        CRMenu->>+IntMgr: updateInternship(internship)
+        CRMenu->>+IntMgr: toggleInternshipVisibility(internship)
+        IntMgr->>+Internship: setVisible(!currentVisibility)
+        Internship-->>-IntMgr: visibility updated
         IntMgr->>+FileMgr: saveToFile(internships)
         FileMgr-->>-IntMgr: saved
         IntMgr-->>-CRMenu: success
@@ -128,12 +126,24 @@ sequenceDiagram
     rect rgb(250, 250, 250)
         Note over CR,Application: 7. Student Application (External)
         Note over AppMgr,Application: Student applies via StudentMenu
-        AppMgr->>+IdGen: generateApplicationId()
-        IdGen-->>-AppMgr: application ID
-        AppMgr->>+Application: new Application(...)
-        Application->>Application: set status = PENDING
-        Application-->>-AppMgr: Application object
-        AppMgr->>AppMgr: addApplication(application)
+        
+        AppMgr->>+IntMgr: getInternshipById(internshipId)
+        IntMgr-->>-AppMgr: Internship
+        AppMgr->>AppMgr: check closing date vs today
+        
+        alt after closing date
+            AppMgr-->>AppMgr: return false (application rejected)
+        else before/on closing date
+            AppMgr->>+IdGen: generateApplicationId()
+            IdGen-->>-AppMgr: application ID
+            AppMgr->>+Application: new Application(appId, studentId, internshipId)
+            Application->>Application: set status = PENDING
+            Application->>Application: set applicationDate = now()
+            Application-->>-AppMgr: Application object
+            AppMgr->>AppMgr: add to list
+            AppMgr->>+FileMgr: saveToFile(applications)
+            FileMgr-->>-AppMgr: saved
+        end
     end
 
     %% View Applications
@@ -161,35 +171,87 @@ sequenceDiagram
     rect rgb(255, 248, 240)
         Note over CR,FileMgr: 9. Review & Approve Application
         CR->>+CRMenu: Select "Review Application"
-        CRMenu->>+AppMgr: getApplicationsByInternship(internshipId)
-        AppMgr->>AppMgr: filter PENDING status
+        CRMenu->>+IntMgr: getInternshipsByRepresentative(repId)
+        IntMgr-->>-CRMenu: internship list
+        CRMenu-->>CR: Show internships
+        
+        CR->>CRMenu: Select internship
+        CRMenu->>+AppMgr: getApplicationsByInternshipandStatus(internshipId, PENDING)
+        AppMgr->>AppMgr: filter by internshipId and status
         AppMgr-->>-CRMenu: pending applications
-        CRMenu-->>CR: Show pending applications
+        
+        loop for each application
+            CRMenu->>+UserMgr: getUserById(studentId)
+            UserMgr-->>-CRMenu: Student
+        end
+        
+        CRMenu-->>CR: Show pending applications with student details
 
-        CR->>CRMenu: Select & approve application
-        CRMenu->>+Application: setStatus(SUCCESSFUL)
-        Application-->>-CRMenu: status updated
-
-        CRMenu->>+AppMgr: updateApplication(application)
+        CR->>CRMenu: Select & approve application (decision=1)
+        CRMenu->>+AppMgr: reviewApplication(application, decision)
+        
+        alt decision = 1 (approve)
+            AppMgr->>+Application: setStatus(SUCCESSFUL)
+            Application-->>-AppMgr: status updated
+        else decision = 2 (reject)
+            AppMgr->>+Application: setStatus(UNSUCCESSFUL)
+            Application-->>-AppMgr: status updated
+        end
+        
         AppMgr->>AppMgr: update in list
         AppMgr->>+FileMgr: saveToFile(applications)
-        FileMgr->>FileMgr: serialize to file
         FileMgr-->>-AppMgr: saved
         AppMgr-->>-CRMenu: success
-        CRMenu-->>-CR: Application approved
+        CRMenu-->>-CR: Application reviewed
     end
 
     %% Student Accepts (External Flow)
     rect rgb(250, 250, 250)
-        Note over Application,Internship: 10. Student Accepts Placement (External)
-        Note over Application: Student accepts via StudentMenu
-        Application->>Application: setConfirmed(true)
-
-        Internship->>+Internship: incrementConfirmedSlots()
-        alt slots full
+        Note over AppMgr,FileMgr: 10. Student Accepts Placement (External)
+        Note over AppMgr: Student accepts via StudentMenu
+        
+        AppMgr->>+AppMgr: handleApplicationAcceptance(student, application)
+        
+        AppMgr->>+Application: setStatus(CONFIRMED)
+        Application-->>-AppMgr: status updated
+        AppMgr->>+FileMgr: saveToFile(applications)
+        FileMgr-->>-AppMgr: saved
+        
+        AppMgr->>+UserMgr: updateUser(student)
+        UserMgr->>+Student: setConfirmedPlacementId(internshipId)
+        Student-->>-UserMgr: placement set
+        UserMgr->>+FileMgr: saveToFile(users)
+        FileMgr-->>-UserMgr: saved
+        UserMgr-->>-AppMgr: student updated
+        
+        AppMgr->>+IntMgr: getInternshipById(internshipId)
+        IntMgr-->>-AppMgr: Internship
+        
+        AppMgr->>+Internship: incrementConfirmedSlots()
+        Internship->>Internship: confirmedSlots++
+        alt confirmedSlots >= totalSlots
             Internship->>Internship: setStatus(FILLED)
         end
-        Internship-->>-Internship: slots updated
+        Internship-->>-AppMgr: slots updated
+        
+        AppMgr->>+IntMgr: updateInternship(internship)
+        IntMgr->>+FileMgr: saveToFile(internships)
+        FileMgr-->>-IntMgr: saved
+        IntMgr-->>-AppMgr: internship updated
+        
+        AppMgr->>AppMgr: getApplicationsByStudent(studentId)
+        AppMgr->>AppMgr: filter other SUCCESSFUL applications
+        
+        loop for each other successful application
+            AppMgr->>+Application: setStatus(UNSUCCESSFUL)
+            Application-->>-AppMgr: status updated
+            AppMgr->>+FileMgr: saveToFile(applications)
+            FileMgr-->>-AppMgr: saved
+        end
+        
+        AppMgr-->>-AppMgr: acceptance complete
+        
+        Note over AppMgr: All other successful applications<br/>automatically rejected
     end
 
     %% Logout
@@ -207,46 +269,78 @@ sequenceDiagram
 
 1. **Authentication Flow**:
    - Login validates credentials through UserManager
-   - Checks approval status for company representatives
-   - Returns User object to AuthenticationController
+   - UserManager authenticates and checks approval status for company representatives
+   - Returns User object to AuthenticationController which stores as currentUser
 
 2. **Internship Creation**:
-   - Checks 5 internship limit per representative
+   - Checks 5 internship limit per representative via InternshipManager
    - Validates dates using InputValidator
    - Generates unique ID via IdGenerator
-   - Sets initial status to PENDING
-   - Persists via FileManager serialization
+   - **InternshipManager creates the Internship entity** (not the menu)
+   - Sets initial status to PENDING and visibility to true
+   - InternshipManager persists via FileManager serialization
 
 3. **Staff Approval Flow**:
    - Alternative flow executed by Career Center Staff
-   - Required before students can see internship
-   - Changes status from PENDING to APPROVED
+   - Staff calls InternshipManager.reviewInternship() with decision
+   - Manager sets status from PENDING to APPROVED/REJECTED
+   - Required before students can see internship (APPROVED + visible)
 
 4. **Visibility Toggle**:
+   - Menu calls InternshipManager.toggleInternshipVisibility()
+   - Manager invokes Internship.setVisible() and updates persistence
    - Immediate effect on student views
    - Company representative retains access regardless
-   - Persisted immediately to file
 
 5. **Application Review**:
-   - Representative views all applications per internship
-   - Can see student details by querying UserManager
-   - Approve/reject changes application status
-   - All changes persisted via FileManager
+   - Representative selects internship and views pending applications
+   - Menu calls ApplicationManager.getApplicationsByInternshipandStatus()
+   - Queries UserManager for student details in display loop
+   - **Menu calls ApplicationManager.reviewApplication()** (not Application.setStatus() directly)
+   - Manager updates status to SUCCESSFUL/UNSUCCESSFUL and persists
 
-6. **Slot Management**:
-   - Automatic status change to FILLED when capacity reached
-   - Handled by Internship entity's incrementConfirmedSlots()
+6. **Student Accepts Placement** (Complex Multi-Manager Flow):
+   - Student calls ApplicationManager.handleApplicationAcceptance()
+   - Sets Application status to CONFIRMED
+   - Updates Student's confirmedPlacementId via UserManager
+   - Retrieves Internship via InternshipManager
+   - Calls Internship.incrementConfirmedSlots() (auto-sets FILLED if full)
+   - Updates Internship via InternshipManager
+   - **Automatically rejects all other SUCCESSFUL applications** for that student
+   - Multiple persistence operations across all three data files
+
+7. **Slot Management**:
+   - Automatic status change to FILLED when confirmedSlots >= totalSlots
+   - Handled by Internship.incrementConfirmedSlots() method
    - Prevents overbooking
 
-7. **Data Persistence**:
+8. **Data Persistence**:
    - All state changes saved via FileManager
+   - Three separate data files: users.dat, internships.dat, applications.dat
    - Serialization preserves object graphs
-   - Atomic file operations
+   - Multiple file operations in complex flows (e.g., acceptance updates all three)
 
 ## Design Patterns Demonstrated
 
-- **Singleton**: All Manager classes (UserManager, InternshipManager, ApplicationManager)
-- **ECB Architecture**: Clear separation of Entity-Control-Boundary layers
-- **Factory-like**: IdGenerator for unique ID creation
-- **Template Method**: MenuInterface provides workflow template
-- **State Pattern**: Status enumerations with state transition logic
+- **Singleton**: All Manager classes (UserManager, InternshipManager, ApplicationManager, WithdrawalManager, FilterManager)
+- **ECB (Entity-Control-Boundary) Architecture**: 
+  - Boundary classes (Menus) never directly modify Entity state
+  - All state changes flow through Control classes (Managers)
+  - Control classes handle business logic and coordinate Entity updates
+  - Control classes manage persistence via FileManager
+- **Factory-like**: IdGenerator for unique ID creation with persistent counters
+- **Template Method**: MenuInterface provides abstract workflow template for all menu types
+- **State Pattern**: Status enumerations (ApplicationStatus, InternshipStatus, ApprovalStatus) with state transition logic
+
+## Architecture Correctness Notes
+
+This diagram accurately reflects the implemented **ECB pattern**:
+- **Boundary Layer** (Menus) handles user interaction and display
+- **Control Layer** (Managers) contains all business logic and orchestration
+- **Entity Layer** (Domain objects) contains only data and simple state methods
+
+Key architectural principle: **Boundary classes NEVER directly modify Entity state**. All modifications go through Manager classes, which ensures:
+1. Consistent business rule enforcement
+2. Centralized persistence management
+3. Transaction-like behavior for complex operations (e.g., student acceptance)
+4. Single Responsibility Principle adherence
