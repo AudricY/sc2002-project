@@ -148,7 +148,7 @@ public class LoginMenu extends MenuInterface {
         }
         else {
             System.out.println("\nRegistration failed!");
-            System.out.println("Company already has a representative!");
+            System.out.println("An account with this email already exists!");
         }
         pause();
     }

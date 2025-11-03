@@ -263,7 +263,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         System.out.println("0. Cancel");
 
         int editChoice = getIntInput("Enter choice: ");
-        String newValue;
+        String newValue = null;
         switch (editChoice) {
             case 1:
                 newValue = getStringInput("New Title: ");
@@ -280,7 +280,13 @@ public class CompanyRepresentativeMenu extends MenuInterface {
                 return;
         }
 
-        internshipManager.editInternshipField(selectedInternship, editChoice, newValue);;
+        if (newValue == null || newValue.trim().isEmpty()) {
+            System.out.println("Invalid input. Update cancelled.");
+            pause();
+            return;
+        }
+
+        internshipManager.editInternshipField(selectedInternship, editChoice, newValue);
         System.out.println("Internship updated successfully!");
         pause();
     }
@@ -353,6 +359,11 @@ public class CompanyRepresentativeMenu extends MenuInterface {
             System.out.println("\nApplications:");
             for (Application app : applications) {
                 Student student = (Student) userManager.getUserById(app.getStudentId());
+                if (student == null) {
+                    System.out.printf("\n[%s] [STUDENT NOT FOUND]\n", app.getApplicationId());
+                    System.out.printf("Status: %s | Applied: %s\n", app.getStatus(), app.getApplicationDate());
+                    continue;
+                }
                 System.out.printf("\n[%s] %s\n", app.getApplicationId(), student.getName());
                 System.out.printf("Student ID: %s | %s\n", student.getUserId(), student.getProfileInfo());
                 System.out.printf("Status: %s | Applied: %s\n", app.getStatus(), app.getApplicationDate());
