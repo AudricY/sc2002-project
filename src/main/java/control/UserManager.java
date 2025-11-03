@@ -96,33 +96,45 @@ public class UserManager {
             String defaultPassword = "password";
 
             User user = null;
-            switch (role) {
-                case STUDENT:
-                    // must have at least StudentID, Name, Major, Year, Email
-                    if (record.length >= 5) {
-                        String userId = record[0];
-                        if (userExists(userId)) continue;
-                        String name = record[1];
-                        String major = record[2];
-                        int year = Integer.parseInt(record[3]);
-                        String email = record[4];
-                        user = new Student(userId, defaultPassword, name, email, year, major);
-                    }
-                    break;
-                case CAREER_CENTER_STAFF:
-                    // must have at least StaffID, Name, Role, Department, Email
-                    if (record.length >= 4) {
-                        String userId = record[0];
-                        if (userExists(userId)) continue;
-                        String name = record[1];
-                        // Skip role field since it's guaranteed to be a career center staff
-                        String dept = record[3];
-                        String email = record[4];
-                        user = new CareerCenterStaff(userId, defaultPassword, name, email, dept);
-                    }
-                    break;
-                default:
-                    continue;
+            try {
+                switch (role) {
+                    case STUDENT:
+                        // must have at least StudentID, Name, Major, Year, Email
+                        if (record.length >= 5) {
+                            String userId = record[0];
+                            if (userExists(userId)) continue;
+                            String name = record[1];
+                            String major = record[2];
+                            int year;
+                            try {
+                                year = Integer.parseInt(record[3]);
+                            } catch (NumberFormatException e) {
+                                System.err.println("Invalid year format in CSV record: " + Arrays.toString(record));
+                                continue;
+                            }
+                            String email = record[4];
+                            user = new Student(userId, defaultPassword, name, email, year, major);
+                        }
+                        break;
+                    case CAREER_CENTER_STAFF:
+                        // must have at least StaffID, Name, Role, Department, Email
+                        if (record.length >= 5) {
+                            String userId = record[0];
+                            if (userExists(userId)) continue;
+                            String name = record[1];
+                            // Skip role field since it's guaranteed to be a career center staff
+                            String dept = record[3];
+                            String email = record[4];
+                            user = new CareerCenterStaff(userId, defaultPassword, name, email, dept);
+                        }
+                        break;
+                    default:
+                        continue;
+                }
+            } catch (Exception e) {
+                System.err.println("Error processing CSV record: " + Arrays.toString(record));
+                System.err.println("Error: " + e.getMessage());
+                continue;
             }
 
             if (user != null) {
