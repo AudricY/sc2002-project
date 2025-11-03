@@ -73,6 +73,7 @@ public class FileManager {
     }
 
     public static Properties loadIdProperties(String filePath) {
+        ensureDataDirectory();
         Properties props = new Properties();
         try (FileInputStream fis = new FileInputStream(DATA_DIR + filePath)) {
             props.load(fis);
@@ -85,6 +86,7 @@ public class FileManager {
     }
 
     public static void saveIdProperties(Properties props, String filePath, String comment) {
+        ensureDataDirectory();
         try (FileOutputStream fos = new FileOutputStream(DATA_DIR + filePath)) {
             props.store(fos, comment);
         } catch (IOException e) {
