@@ -1,405 +1,377 @@
 # UML Class Diagram
 
-```mermaid
----
-config:
-  layout: elk
----
-classDiagram
-    %% Enumerations
-    class UserRole {
-        <<enumeration>>
-        STUDENT
-        COMPANY_REPRESENTATIVE
-        CAREER_CENTER_STAFF
-    }
+```plantuml
+@startuml SC2002_Class_Diagram
 
-    class InternshipLevel {
-        <<enumeration>>
-        BASIC
-        INTERMEDIATE
-        ADVANCED
-    }
+skinparam classAttributeIconSize 0
 
-    class InternshipStatus {
-        <<enumeration>>
-        PENDING
-        APPROVED
-        REJECTED
-        FILLED
-    }
+' Enumerations
+enum UserRole {
+    STUDENT
+    COMPANY_REPRESENTATIVE
+    CAREER_CENTER_STAFF
+}
 
-    class ApplicationStatus {
-        <<enumeration>>
-        PENDING
-        SUCCESSFUL
-        UNSUCCESSFUL
-        CONFIRMED
-    }
+enum InternshipLevel {
+    BASIC
+    INTERMEDIATE
+    ADVANCED
+}
 
-    class ApprovalStatus {
-        <<enumeration>>
-        PENDING
-        APPROVED
-        REJECTED
-    }
+enum InternshipStatus {
+    PENDING
+    APPROVED
+    REJECTED
+    FILLED
+}
 
-    class SortCriteria {
-        <<enumeration>>
-        ALPHABETICAL
-        OPENING_DATE
-        CLOSING_DATE
-        LEVEL
-    }
+enum ApplicationStatus {
+    PENDING
+    SUCCESSFUL
+    UNSUCCESSFUL
+    CONFIRMED
+}
 
-    class PasswordChangeResult {
-        <<enumeration>>
-        SUCCESS
-        MISMATCH
-        INVALID_FORMAT
-        DUPLICATE
-        INCORRECT_OLD
-    }
+enum ApprovalStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
 
-    %% Entity Classes
-    class User {
-        <<abstract>>
-        -String userId
-        -String password
-        -String name
-        -String email
-        -UserRole role
-        -boolean firstLogin
-        +getters/setters()
-        +getProfileInfo()* String
-    }
+enum SortCriteria {
+    ALPHABETICAL
+    OPENING_DATE
+    CLOSING_DATE
+    LEVEL
+}
 
-    class Student {
-        -int yearOfStudy
-        -String major
-        -String confirmedPlacementId
-        +getters/setters()
-        +hasConfirmedPlacement() boolean
-        +getProfileInfo() String
-    }
+enum PasswordChangeResult {
+    SUCCESS
+    MISMATCH
+    INVALID_FORMAT
+    DUPLICATE
+    INCORRECT_OLD
+}
 
-    class CompanyRepresentative {
-        -String companyName
-        -String department
-        -String position
-        -ApprovalStatus approvalStatus
-        +getters/setters()
-        +isApproved() boolean
-        +getProfileInfo() String
-    }
+' Entity Classes
+abstract class User {
+    -userId : String
+    -password : String
+    -name : String
+    -email : String
+    -role : UserRole
+    -firstLogin : boolean
+    +getters/setters()
+    +{abstract} getProfileInfo() : String
+}
 
-    class CareerCenterStaff {
-        -String staffDepartment
-        +getters/setters()
-        +getProfileInfo() String
-    }
+class Student {
+    -yearOfStudy : int
+    -major : String
+    -confirmedPlacementId : String
+    +getters/setters()
+    +hasConfirmedPlacement() : boolean
+    +getProfileInfo() : String
+}
 
-    class Internship {
-        -String internshipId
-        -String title
-        -String description
-        -InternshipLevel level
-        -String preferredMajor
-        -LocalDate openingDate
-        -LocalDate closingDate
-        -InternshipStatus status
-        -String companyName
-        -String representativeId
-        -int totalSlots
-        -int confirmedSlots
-        -boolean visible
-        +getters/setters()
-        +incrementConfirmedSlots()
-        +decrementConfirmedSlots()
-        +hasAvailableSlots() boolean
-        +isApproved() boolean
-        +isFilled() boolean
-    }
+class CompanyRepresentative {
+    -companyName : String
+    -department : String
+    -position : String
+    -approvalStatus : ApprovalStatus
+    +getters/setters()
+    +isApproved() : boolean
+    +getProfileInfo() : String
+}
 
-    class Application {
-        -String applicationId
-        -String studentId
-        -String internshipId
-        -ApplicationStatus status
-        -LocalDateTime applicationDate
-        +getters/setters()
-    }
+class CareerCenterStaff {
+    -staffDepartment : String
+    +getters/setters()
+    +getProfileInfo() : String
+}
 
-    class WithdrawalRequest {
-        -String requestId
-        -String studentId
-        -String applicationId
-        -String reason
-        -ApprovalStatus status
-        -LocalDateTime requestDate
-        -String reviewedByStaffId
-        -LocalDateTime reviewDate
-        +getters/setters()
-    }
+class Internship {
+    -internshipId : String
+    -title : String
+    -description : String
+    -level : InternshipLevel
+    -preferredMajor : String
+    -openingDate : LocalDate
+    -closingDate : LocalDate
+    -status : InternshipStatus
+    -companyName : String
+    -representativeId : String
+    -totalSlots : int
+    -confirmedSlots : int
+    -visible : boolean
+    +getters/setters()
+    +incrementConfirmedSlots() : void
+    +decrementConfirmedSlots() : void
+    +hasAvailableSlots() : boolean
+    +isApproved() : boolean
+    +isFilled() : boolean
+}
 
-    class FilterSettings {
-        -String userId
-        -InternshipLevel levelFilter
-        -String majorFilter
-        -InternshipStatus statusFilter
-        -SortCriteria sortBy
-        +getters/setters()
-        +getComparator() Comparator~Internship~
-    }
+class Application {
+    -applicationId : String
+    -studentId : String
+    -internshipId : String
+    -status : ApplicationStatus
+    -applicationDate : LocalDateTime
+    +getters/setters()
+}
 
-    %% Boundary Classes
-    class MenuInterface {
-        <<abstract>>
-        <<boundary>>
-        #Scanner scanner
-        +displayMenu()*
-        +handleMenuChoice(int)*
-        #pause()
-        #clearScreen()
-        #printHeader(String)
-        #getIntInput(String) int
-        #getStringInput(String) String
-    }
+class WithdrawalRequest {
+    -requestId : String
+    -studentId : String
+    -applicationId : String
+    -reason : String
+    -status : ApprovalStatus
+    -requestDate : LocalDateTime
+    -reviewedByStaffId : String
+    -reviewDate : LocalDateTime
+    +getters/setters()
+}
 
-    class LoginMenu {
-        <<boundary>>
-        -AuthenticationController authController
-        +displayMenu()
-        +handleMenuChoice(int)
-    }
+class FilterSettings {
+    -userId : String
+    -levelFilter : InternshipLevel
+    -majorFilter : String
+    -statusFilter : InternshipStatus
+    -sortBy : SortCriteria
+    +getters/setters()
+    +getComparator() : Comparator<Internship>
+}
 
-    class StudentMenu {
-        <<boundary>>
-        -AuthenticationController authController
-        -Student student
-        +displayMenu()
-        +handleMenuChoice(int)
-    }
+' Boundary Classes
+abstract class MenuInterface <<boundary>> {
+    #scanner : Scanner
+    +{abstract} displayMenu() : void
+    +{abstract} handleMenuChoice(choice : int) : void
+    #pause() : void
+    #clearScreen() : void
+    #printHeader(title : String) : void
+    #getIntInput(prompt : String) : int
+    #getStringInput(prompt : String) : String
+}
 
-    class CompanyRepresentativeMenu {
-        <<boundary>>
-        -AuthenticationController authController
-        -CompanyRepresentative representative
-        +displayMenu()
-        +handleMenuChoice(int)
-    }
+class LoginMenu <<boundary>> {
+    -authController : AuthenticationController
+    +displayMenu() : void
+    +handleMenuChoice(choice : int) : void
+}
 
-    class CareerCenterStaffMenu {
-        <<boundary>>
-        -AuthenticationController authController
-        -CareerCenterStaff staff
-        +displayMenu()
-        +handleMenuChoice(int)
-    }
+class StudentMenu <<boundary>> {
+    -authController : AuthenticationController
+    -student : Student
+    +displayMenu() : void
+    +handleMenuChoice(choice : int) : void
+}
 
-    %% Control Classes
-    class UserManager {
-        <<control>>
-        <<singleton>>
-        -List~User~ users
-        -UserManager instance
-        +getInstance()$ UserManager
-        +authenticateUser(String, String) User
-        +userExists(String) boolean
-        +addUser(User)
-        +getUserById(String) User
-        +updateUser(User)
-        +getPendingRepresentatives() List~CompanyRepresentative~
-        +getAllStudents() List~Student~
-        +reviewRepresentative(CompanyRepresentative, int)
-        +loadUsersFromCSV(String, UserRole)
-        +saveUsers()
-    }
+class CompanyRepresentativeMenu <<boundary>> {
+    -authController : AuthenticationController
+    -representative : CompanyRepresentative
+    +displayMenu() : void
+    +handleMenuChoice(choice : int) : void
+}
 
-    class InternshipManager {
-        <<control>>
-        <<singleton>>
-        -List~Internship~ internships
-        -InternshipManager instance
-        +getInstance()$ InternshipManager
-        +addInternship(String, String, String, InternshipLevel, String, LocalDate, LocalDate, String, String, int)
-        +getInternshipById(String) Internship
-        +updateInternship(Internship)
-        +getInternshipsByRepresentative(String) List~Internship~
-        +getVisibleInternshipsForStudent(Student) List~Internship~
-        +getPendingInternships() List~Internship~
-        +filterInternships(List, FilterSettings) List~Internship~
-        +countInternshipsByRepresentative(String) int
-        +reviewInternship(Internship, int)
-        +editInternshipField(Internship, int, String)
-        +toggleInternshipVisibility(Internship)
-        +getAllInternships() List~Internship~
-        +getAllInternships(Function) Map
-        +saveInternships()
-    }
+class CareerCenterStaffMenu <<boundary>> {
+    -authController : AuthenticationController
+    -staff : CareerCenterStaff
+    +displayMenu() : void
+    +handleMenuChoice(choice : int) : void
+}
 
-    class ApplicationManager {
-        <<control>>
-        <<singleton>>
-        -List~Application~ applications
-        -ApplicationManager instance
-        +getInstance()$ ApplicationManager
-        +addApplication(String, String, String) boolean
-        +getApplicationById(String) Application
-        +updateApplication(Application)
-        +removeApplication(Application)
-        +getApplicationsByStudent(String) List~Application~
-        +getApplicationsByInternship(String) List~Application~
-        +countPendingApplicationsByStudent(String) int
-        +hasAppliedToInternship(String, String) boolean
-        +reviewApplication(Application, int)
-        +getApplicationsByInternshipandStatus(String, ApplicationStatus) List~Application~
-        +getApplicationsByStudentandStatus(String, ApplicationStatus) List~Application~
-        +getApplicationCount(List, ApplicationStatus) long
-        +handleApplicationAcceptance(Student, Application)
-        +saveApplications()
-    }
+' Control Classes
+class UserManager <<control>> <<singleton>> {
+    -users : List<User>
+    -{static} instance : UserManager
+    +{static} getInstance() : UserManager
+    +authenticateUser(userId : String, password : String) : User
+    +userExists(userId : String) : boolean
+    +addUser(user : User) : void
+    +getUserById(userId : String) : User
+    +updateUser(user : User) : void
+    +getPendingRepresentatives() : List<CompanyRepresentative>
+    +getAllStudents() : List<Student>
+    +reviewRepresentative(rep : CompanyRepresentative, choice : int) : void
+    +loadUsersFromCSV(filePath : String, role : UserRole) : void
+    +saveUsers() : void
+}
 
-    class WithdrawalManager {
-        <<control>>
-        <<singleton>>
-        -List~WithdrawalRequest~ withdrawalRequests
-        -WithdrawalManager instance
-        +getInstance()$ WithdrawalManager
-        +addWithdrawalRequest(String, String, String, String)
-        +getWithdrawalById(String) WithdrawalRequest
-        +updateWithdrawalRequest(WithdrawalRequest)
-        +getPendingWithdrawals() List~WithdrawalRequest~
-        +getWithdrawalsByStudent(String) List~WithdrawalRequest~
-        +hasPendingWithdrawal(String) boolean
-        +reviewWithdrawal(WithdrawalRequest, String, int)
-        +saveWithdrawals()
-    }
+class InternshipManager <<control>> <<singleton>> {
+    -internships : List<Internship>
+    -{static} instance : InternshipManager
+    +{static} getInstance() : InternshipManager
+    +addInternship(...) : void
+    +getInternshipById(id : String) : Internship
+    +updateInternship(internship : Internship) : void
+    +getInternshipsByRepresentative(repId : String) : List<Internship>
+    +getVisibleInternshipsForStudent(student : Student) : List<Internship>
+    +getPendingInternships() : List<Internship>
+    +filterInternships(list : List, settings : FilterSettings) : List<Internship>
+    +countInternshipsByRepresentative(repId : String) : int
+    +reviewInternship(internship : Internship, choice : int) : void
+    +editInternshipField(internship : Internship, field : int, value : String) : void
+    +toggleInternshipVisibility(internship : Internship) : void
+    +getAllInternships() : List<Internship>
+    +getAllInternships(classifier : Function) : Map
+    +saveInternships() : void
+}
 
-    class FilterManager {
-        <<control>>
-        <<singleton>>
-        -Map~String,FilterSettings~ userFilters
-        -FilterManager instance
-        +getInstance()$ FilterManager
-        +getFilterSettings(String) FilterSettings
-        +updateFilterSettings(FilterSettings)
-        +saveFilters()
-    }
+class ApplicationManager <<control>> <<singleton>> {
+    -applications : List<Application>
+    -{static} instance : ApplicationManager
+    +{static} getInstance() : ApplicationManager
+    +addApplication(appId : String, studentId : String, internshipId : String) : boolean
+    +getApplicationById(id : String) : Application
+    +updateApplication(application : Application) : void
+    +removeApplication(application : Application) : void
+    +getApplicationsByStudent(studentId : String) : List<Application>
+    +getApplicationsByInternship(internshipId : String) : List<Application>
+    +countPendingApplicationsByStudent(studentId : String) : int
+    +hasAppliedToInternship(studentId : String, internshipId : String) : boolean
+    +reviewApplication(app : Application, choice : int) : void
+    +getApplicationsByInternshipandStatus(id : String, status : ApplicationStatus) : List<Application>
+    +getApplicationsByStudentandStatus(id : String, status : ApplicationStatus) : List<Application>
+    +getApplicationCount(list : List, status : ApplicationStatus) : long
+    +handleApplicationAcceptance(student : Student, app : Application) : void
+    +saveApplications() : void
+}
 
-    class AuthenticationController {
-        <<control>>
-        -UserManager userManager
-        -User currentUser
-        +login(String, String) boolean
-        +logout()
-        +getCurrentUser() User
-        +attemptPasswordChange(String, String, String) PasswordChangeResult
-        +registerCompanyRepresentative(String, String, String, String, String, String) boolean
-        +userExists(String) boolean
-        -changePassword(String, String) boolean
-    }
+class WithdrawalManager <<control>> <<singleton>> {
+    -withdrawalRequests : List<WithdrawalRequest>
+    -{static} instance : WithdrawalManager
+    +{static} getInstance() : WithdrawalManager
+    +addWithdrawalRequest(...) : void
+    +getWithdrawalById(id : String) : WithdrawalRequest
+    +updateWithdrawalRequest(request : WithdrawalRequest) : void
+    +getPendingWithdrawals() : List<WithdrawalRequest>
+    +getWithdrawalsByStudent(studentId : String) : List<WithdrawalRequest>
+    +hasPendingWithdrawal(applicationId : String) : boolean
+    +reviewWithdrawal(request : WithdrawalRequest, staffId : String, choice : int) : void
+    +saveWithdrawals() : void
+}
 
-    %% Utility Classes
-    class FileManager {
-        <<utility>>
-        +saveToFile(String, List)$
-        +loadFromFile(String)$ List
-        +readCSV(String, boolean)$ List~String[]~
-        +ensureDataDirectory()$
-        +loadIdProperties(String)$ Properties
-        +saveIdProperties(Properties, String, String)$
-    }
+class FilterManager <<control>> <<singleton>> {
+    -userFilters : Map<String, FilterSettings>
+    -{static} instance : FilterManager
+    +{static} getInstance() : FilterManager
+    +getFilterSettings(userId : String) : FilterSettings
+    +updateFilterSettings(settings : FilterSettings) : void
+    +saveFilters() : void
+}
 
-    class InputValidator {
-        <<utility>>
-        +isValidEmail(String)$ boolean
-        +isValidPassword(String)$ boolean
-        +isValidDate(String)$ boolean
-        +isPositiveInteger(String)$ boolean
-        +isValidRange(int, int, int)$ boolean
-    }
+class AuthenticationController <<control>> {
+    -userManager : UserManager
+    -currentUser : User
+    +login(userId : String, password : String) : boolean
+    +logout() : void
+    +getCurrentUser() : User
+    +attemptPasswordChange(...) : PasswordChangeResult
+    +registerCompanyRepresentative(...) : boolean
+    +userExists(userId : String) : boolean
+    -changePassword(userId : String, newPassword : String) : boolean
+}
 
-    class IdGenerator {
-        <<utility>>
-        +generateInternshipId()$ String
-        +generateApplicationId()$ String
-        +generateWithdrawalId()$ String
-    }
+' Utility Classes
+class FileManager <<utility>> {
+    +{static} saveToFile(filePath : String, data : List) : void
+    +{static} loadFromFile(filePath : String) : List
+    +{static} readCSV(filePath : String, hasHeader : boolean) : List<String[]>
+    +{static} ensureDataDirectory() : void
+    +{static} loadIdProperties(filePath : String) : Properties
+    +{static} saveIdProperties(props : Properties, filePath : String, comment : String) : void
+}
 
-    class DateUtils {
-        <<utility>>
-        +FORMATTER$ DateTimeFormatter
-        +parseDate(String)$ LocalDate
-        +formatDate(LocalDate)$ String
-    }
+class InputValidator <<utility>> {
+    +{static} isValidEmail(email : String) : boolean
+    +{static} isValidPassword(password : String) : boolean
+    +{static} isValidDate(date : String) : boolean
+    +{static} isPositiveInteger(input : String) : boolean
+    +{static} isValidRange(value : int, min : int, max : int) : boolean
+}
 
-    %% Inheritance Relationships
-    User <|-- Student
-    User <|-- CompanyRepresentative
-    User <|-- CareerCenterStaff
-    MenuInterface <|-- LoginMenu
-    MenuInterface <|-- StudentMenu
-    MenuInterface <|-- CompanyRepresentativeMenu
-    MenuInterface <|-- CareerCenterStaffMenu
+class IdGenerator <<utility>> {
+    +{static} generateInternshipId() : String
+    +{static} generateApplicationId() : String
+    +{static} generateWithdrawalId() : String
+}
 
-    %% Associations - Entity Relationships
-    User --> UserRole : has
-    Student "1" --> "0..*" Application : creates
-    CompanyRepresentative "1" --> "0..5" Internship : creates
-    Internship --> InternshipLevel : has
-    Internship --> InternshipStatus : has
-    Internship "1" --> "0..*" Application : receives
-    Application --> ApplicationStatus : has
-    Application "1" --> "0..1" WithdrawalRequest : subject of
-    WithdrawalRequest --> ApprovalStatus : has
-    FilterSettings --> InternshipLevel : filters by
-    FilterSettings --> InternshipStatus : filters by
-    FilterSettings --> SortCriteria : sorts by
+class DateUtils <<utility>> {
+    +{static} FORMATTER : DateTimeFormatter
+    +{static} parseDate(dateStr : String) : LocalDate
+    +{static} formatDate(date : LocalDate) : String
+}
 
-    %% Control Layer Associations
-    UserManager "1" --> "*" User : manages
-    InternshipManager "1" --> "*" Internship : manages
-    ApplicationManager "1" --> "*" Application : manages
-    WithdrawalManager "1" --> "*" WithdrawalRequest : manages
-    FilterManager "1" --> "*" FilterSettings : manages
-    AuthenticationController --> UserManager : uses
-    AuthenticationController --> User : manages current
+' Inheritance Relationships
+User <|-- Student
+User <|-- CompanyRepresentative
+User <|-- CareerCenterStaff
+MenuInterface <|-- LoginMenu
+MenuInterface <|-- StudentMenu
+MenuInterface <|-- CompanyRepresentativeMenu
+MenuInterface <|-- CareerCenterStaffMenu
 
-    %% Boundary Layer Associations
-    LoginMenu --> AuthenticationController : uses
-    StudentMenu --> AuthenticationController : uses
-    StudentMenu --> InternshipManager : uses
-    StudentMenu --> ApplicationManager : uses
-    StudentMenu --> WithdrawalManager : uses
-    StudentMenu --> FilterManager : uses
-    CompanyRepresentativeMenu --> AuthenticationController : uses
-    CompanyRepresentativeMenu --> InternshipManager : uses
-    CompanyRepresentativeMenu --> ApplicationManager : uses
-    CompanyRepresentativeMenu --> UserManager : uses
-    CareerCenterStaffMenu --> AuthenticationController : uses
-    CareerCenterStaffMenu --> UserManager : uses
-    CareerCenterStaffMenu --> InternshipManager : uses
-    CareerCenterStaffMenu --> ApplicationManager : uses
-    CareerCenterStaffMenu --> WithdrawalManager : uses
-    CareerCenterStaffMenu --> FilterManager : uses
+' Associations - Entity Relationships
+User --> UserRole : has
+Student "1" --> "0..*" Application : creates
+CompanyRepresentative "1" --> "0..5" Internship : creates
+Internship --> InternshipLevel : has
+Internship --> InternshipStatus : has
+Internship "1" --> "0..*" Application : receives
+Application --> ApplicationStatus : has
+Application "1" --> "0..1" WithdrawalRequest : subject of
+WithdrawalRequest --> ApprovalStatus : has
+FilterSettings --> InternshipLevel : filters by
+FilterSettings --> InternshipStatus : filters by
+FilterSettings --> SortCriteria : sorts by
 
-    %% Utility Associations
-    UserManager ..> FileManager : uses
-    InternshipManager ..> FileManager : uses
-    ApplicationManager ..> FileManager : uses
-    WithdrawalManager ..> FileManager : uses
-    FilterManager ..> FileManager : uses
-    CompanyRepresentativeMenu ..> InputValidator : uses
-    LoginMenu ..> InputValidator : uses
-    StudentMenu ..> InputValidator : uses
-    CompanyRepresentativeMenu ..> IdGenerator : uses
-    StudentMenu ..> IdGenerator : uses
-    CompanyRepresentativeMenu ..> DateUtils : uses
-    CareerCenterStaffMenu ..> DateUtils : uses
-    InputValidator ..> DateUtils : uses
-    IdGenerator ..> FileManager : uses
-    AuthenticationController --> PasswordChangeResult : returns
+' Control Layer Associations
+UserManager "1" --> "*" User : manages
+InternshipManager "1" --> "*" Internship : manages
+ApplicationManager "1" --> "*" Application : manages
+WithdrawalManager "1" --> "*" WithdrawalRequest : manages
+FilterManager "1" --> "*" FilterSettings : manages
+AuthenticationController --> UserManager : uses
+AuthenticationController --> User : manages current
+
+' Boundary Layer Associations
+LoginMenu --> AuthenticationController : uses
+StudentMenu --> AuthenticationController : uses
+StudentMenu --> InternshipManager : uses
+StudentMenu --> ApplicationManager : uses
+StudentMenu --> WithdrawalManager : uses
+StudentMenu --> FilterManager : uses
+CompanyRepresentativeMenu --> AuthenticationController : uses
+CompanyRepresentativeMenu --> InternshipManager : uses
+CompanyRepresentativeMenu --> ApplicationManager : uses
+CompanyRepresentativeMenu --> UserManager : uses
+CareerCenterStaffMenu --> AuthenticationController : uses
+CareerCenterStaffMenu --> UserManager : uses
+CareerCenterStaffMenu --> InternshipManager : uses
+CareerCenterStaffMenu --> ApplicationManager : uses
+CareerCenterStaffMenu --> WithdrawalManager : uses
+CareerCenterStaffMenu --> FilterManager : uses
+
+' Utility Associations (Dependencies)
+UserManager ..> FileManager : uses
+InternshipManager ..> FileManager : uses
+ApplicationManager ..> FileManager : uses
+WithdrawalManager ..> FileManager : uses
+FilterManager ..> FileManager : uses
+CompanyRepresentativeMenu ..> InputValidator : uses
+LoginMenu ..> InputValidator : uses
+StudentMenu ..> InputValidator : uses
+CompanyRepresentativeMenu ..> IdGenerator : uses
+StudentMenu ..> IdGenerator : uses
+CompanyRepresentativeMenu ..> DateUtils : uses
+CareerCenterStaffMenu ..> DateUtils : uses
+InputValidator ..> DateUtils : uses
+IdGenerator ..> FileManager : uses
+AuthenticationController --> PasswordChangeResult : returns
+
+@enduml
 ```
 
 ## OO Principles Applied
