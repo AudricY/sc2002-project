@@ -1,7 +1,7 @@
 package entity;
 
-public enum InternshipLevel {
-    BASIC,
-    INTERMEDIATE,
-    ADVANCED
-}
+    public enum InternshipLevel {
+        BASIC,
+        INTERMEDIATE,
+        ADVANCED
+    }
