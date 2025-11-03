@@ -138,6 +138,30 @@ public class CompanyRepresentativeMenu extends MenuInterface {
     }
 
     private void viewMyInternships() {
+        printHeader("CREATED INTERNSHIPS");
+
+        System.out.println("1. All Internships");
+        System.out.println("2. Filtered Internships");
+        System.out.println("0. Back");
+
+        int choice = getIntInput("\nEnter choice: ");
+
+        switch (choice) {
+            case 1:
+                viewAllInternships();
+                break;
+            
+            case 2:
+                viewFilteredInternships();
+        
+            default:
+                break;
+        }
+        
+    }
+
+    private void viewAllInternships() {
+        clearScreen();
         printHeader("MY INTERNSHIP OPPORTUNITIES");
 
         List<Internship> internships = internshipManager.getInternshipsByRepresentative(
@@ -153,6 +177,47 @@ public class CompanyRepresentativeMenu extends MenuInterface {
                 System.out.printf("Slots: %d/%d confirmed\n", intern.getConfirmedSlots(), intern.getTotalSlots());
                 System.out.printf("Period: %s to %s\n", DateUtils.formatDate(intern.getOpeningDate()), DateUtils.formatDate(intern.getClosingDate()));
             }
+        }
+        pause();
+    }
+
+    private void viewFilteredInternships() {
+        clearScreen();
+        printHeader("FILTERED INTERNSHIPS REPORT");
+
+        System.out.println("Filter Options:");
+        System.out.println("1. By Status");
+        System.out.println("2. By Level");
+        System.out.println("3. By Major");
+
+        int filterChoice = getIntInput("Select filter: ");
+        FilterSettings settings = new FilterSettings("report");
+                if (filterChoice == 1) {
+            System.out.println("1=PENDING, 2=APPROVED, 3=REJECTED, 4=FILLED");
+            int statusChoice = getIntInput("Select status: ");
+            if (statusChoice >= 1 && statusChoice <= 4) {
+                settings.setStatusFilter(InternshipStatus.values()[statusChoice - 1]);
+            }
+        } else if (filterChoice == 2) {
+            System.out.println("1=BASIC, 2=INTERMEDIATE, 3=ADVANCED");
+            int levelChoice = getIntInput("Select level: ");
+            if (levelChoice >= 1 && levelChoice <= 3) {
+                settings.setLevelFilter(InternshipLevel.values()[levelChoice - 1]);
+            }
+        } else if (filterChoice == 3) {
+            String major = getStringInput("Enter major: ");
+            settings.setMajorFilter(major);
+        }
+
+        List<Internship> allInternships = internshipManager.getAllInternships();
+
+        List<Internship> filtered = internshipManager.filterInternships(allInternships, settings);
+
+        System.out.printf("\nFound %d internships:\n", filtered.size());
+        for (Internship intern : filtered) {
+            System.out.printf("[%s] %s - %s | Level: %s | Major: %s | Status: %s\n",
+                    intern.getInternshipId(), intern.getTitle(), intern.getCompanyName(),
+                    intern.getLevel(), intern.getPreferredMajor(), intern.getStatus());
         }
         pause();
     }

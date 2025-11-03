@@ -153,4 +153,8 @@ public class InternshipManager {
             .collect(Collectors.groupingBy(groupByField));
 
     }
+
+    public List<Internship> getAllInternships() {
+        return new ArrayList<>(internships);
+    }
 }

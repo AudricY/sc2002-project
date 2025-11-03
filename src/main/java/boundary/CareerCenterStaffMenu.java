@@ -252,28 +252,6 @@ public class CareerCenterStaffMenu extends MenuInterface {
 
         pause();
     }
-        // List<Internship> allInternships = internshipManager.getPendingInternships();
-        // allInternships.addAll(internshipManager.filterInternships(
-        //         new ArrayList<>(), new FilterSettings("temp")));
-
-        // System.out.println("Loading all internships...");
-        // List<String> statuses = Arrays.asList("PENDING", "APPROVED", "REJECTED", "FILLED");
-
-        // for (String statusStr : statuses) {
-        //     InternshipStatus status = InternshipStatus.valueOf(statusStr);
-        //     List<Internship> filtered = allInternships.stream()
-        //             .filter(i -> i.getStatus() == status)
-        //             .collect(Collectors.toList());
-
-        //     System.out.printf("\n--- %s: %d ---\n", statusStr, filtered.size());
-        //     for (Internship intern : filtered) {
-        //         System.out.printf("[%s] %s - %s | Slots: %d/%d\n",
-        //                 intern.getInternshipId(), intern.getTitle(), intern.getCompanyName(),
-        //                 intern.getConfirmedSlots(), intern.getTotalSlots());
-        //     }
-        // }
-        // pause();
-    // }
 
     private void generateFilteredInternshipsReport() {
         printHeader("FILTERED INTERNSHIPS REPORT");
@@ -303,12 +281,7 @@ public class CareerCenterStaffMenu extends MenuInterface {
             settings.setMajorFilter(major);
         }
 
-        List<Internship> allInternships = new ArrayList<>();
-        for (InternshipStatus status : InternshipStatus.values()) {
-            if (settings.getStatusFilter() == null || settings.getStatusFilter() == status) {
-                allInternships.addAll(internshipManager.getPendingInternships());
-            }
-        }
+        List<Internship> allInternships = internshipManager.getAllInternships();
 
         List<Internship> filtered = internshipManager.filterInternships(allInternships, settings);
 
