@@ -221,11 +221,11 @@ public class StudentMenu extends MenuInterface {
         printHeader("REQUEST WITHDRAWAL");
 
         List<Application> pendingApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.PENDING);
-        List<Application> confirmedApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.CONFIRMED);
+        List<Application> successfulApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.SUCCESSFUL);
 
         List<Application> applications = new ArrayList<>();
         applications.addAll(pendingApps);
-        applications.addAll(confirmedApps);
+        applications.addAll(successfulApps);
 
 
         if (applications.isEmpty()) {
