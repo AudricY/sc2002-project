@@ -169,8 +169,25 @@ public class CareerCenterStaffMenu extends MenuInterface {
         for (int i = 0; i < pendingWithdrawals.size(); i++) {
             WithdrawalRequest request = pendingWithdrawals.get(i);
             Application app = applicationManager.getApplicationById(request.getApplicationId());
+            if (app == null) {
+                System.out.printf("\n%d. [%s] Withdrawal Request - [APPLICATION NOT FOUND]\n", i + 1, request.getRequestId());
+                continue;
+            }
             Student student = (Student) userManager.getUserById(request.getStudentId());
+            if (student == null) {
+                System.out.printf("\n%d. [%s] Withdrawal Request - [STUDENT NOT FOUND]\n", i + 1, request.getRequestId());
+                continue;
+            }
             Internship intern = internshipManager.getInternshipById(app.getInternshipId());
+            if (intern == null) {
+                System.out.printf("\n%d. [%s] Withdrawal Request\n", i + 1, request.getRequestId());
+                System.out.printf("   Student: %s (%s)\n", student.getName(), student.getUserId());
+                System.out.printf("   Internship: [NOT FOUND]\n");
+                System.out.printf("   Application Status: %s\n", app.getStatus());
+                System.out.printf("   Reason: %s\n", request.getReason());
+                System.out.printf("   Requested: %s\n", request.getRequestDate());
+                continue;
+            }
 
             System.out.printf("\n%d. [%s] Withdrawal Request\n", i + 1, request.getRequestId());
             System.out.printf("   Student: %s (%s)\n", student.getName(), student.getUserId());

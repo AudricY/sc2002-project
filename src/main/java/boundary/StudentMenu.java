@@ -110,6 +110,12 @@ public class StudentMenu extends MenuInterface {
         } else {
             for (Application app : applications) {
                 Internship intern = internshipManager.getInternshipById(app.getInternshipId());
+                if (intern == null) {
+                    System.out.printf("\nApplication ID: %s\n", app.getApplicationId());
+                    System.out.println("Internship: [NOT FOUND]");
+                    System.out.printf("Status: %s\n", app.getStatus());
+                    continue;
+                }
                 System.out.printf("\nApplication ID: %s\n", app.getApplicationId());
                 System.out.printf("Internship: %s - %s\n", intern.getInternshipId(), intern.getTitle());
                 System.out.printf("Company: %s\n", intern.getCompanyName());
@@ -202,6 +208,10 @@ public class StudentMenu extends MenuInterface {
         for (int i = 0; i < successfulApps.size(); i++) {
             Application app = successfulApps.get(i);
             Internship intern = internshipManager.getInternshipById(app.getInternshipId());
+            if (intern == null) {
+                System.out.printf("%d. [%s] [INTERNSHIP NOT FOUND]\n", i + 1, app.getApplicationId());
+                continue;
+            }
             System.out.printf("%d. [%s] %s - %s\n", i + 1, intern.getInternshipId(),
                     intern.getTitle(), intern.getCompanyName());
         }
@@ -241,6 +251,10 @@ public class StudentMenu extends MenuInterface {
         for (int i = 0; i < applications.size(); i++) {
             Application app = applications.get(i);
             Internship intern = internshipManager.getInternshipById(app.getInternshipId());
+            if (intern == null) {
+                System.out.printf("%d. [%s] [INTERNSHIP NOT FOUND] - Status: %s\n", i + 1, app.getApplicationId(), app.getStatus());
+                continue;
+            }
             System.out.printf("%d. [%s] %s - Status: %s\n", i + 1, app.getApplicationId(),
                     intern.getTitle(), app.getStatus());
         }
@@ -276,8 +290,12 @@ public class StudentMenu extends MenuInterface {
         System.out.println(student.getProfileInfo());
         if (student.hasConfirmedPlacement()) {
             Internship placement = internshipManager.getInternshipById(student.getConfirmedPlacementId());
-            System.out.println("\nConfirmed Placement: " + placement.getTitle() +
-                    " at " + placement.getCompanyName());
+            if (placement != null) {
+                System.out.println("\nConfirmed Placement: " + placement.getTitle() +
+                        " at " + placement.getCompanyName());
+            } else {
+                System.out.println("\nConfirmed Placement: [INTERNSHIP NOT FOUND]");
+            }
         }
         pause();
     }
