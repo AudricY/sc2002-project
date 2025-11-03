@@ -29,7 +29,14 @@ public class ApplicationManager {
     public boolean addApplication(String applicationId, String studentId, String internshipId) {
         // Enforce date limits
         InternshipManager internshipManager = InternshipManager.getInstance();
-        LocalDate closingDate = internshipManager.getInternshipById(internshipId).getClosingDate();
+        Internship internship = internshipManager.getInternshipById(internshipId);
+        if (internship == null) {
+            return false;
+        }
+        LocalDate closingDate = internship.getClosingDate();
+        if (closingDate == null) {
+            return false;
+        }
         LocalDate today = LocalDate.now();
         if (today.isAfter(closingDate)) return false;
         Application application = new Application(applicationId, studentId,
@@ -95,6 +102,7 @@ public class ApplicationManager {
             case 2:
                 application.setStatus(ApplicationStatus.UNSUCCESSFUL);
                 updateApplication(application);
+                break;
             default:
                 break;
         }
@@ -128,6 +136,9 @@ public class ApplicationManager {
 
         InternshipManager internshipManager = InternshipManager.getInstance();
         Internship internship = internshipManager.getInternshipById(application.getInternshipId());
+        if (internship == null) {
+            return;
+        }
         internship.incrementConfirmedSlots();
         internshipManager.updateInternship(internship);
         List<Application> otherApps = getApplicationsByStudent(student.getUserId())

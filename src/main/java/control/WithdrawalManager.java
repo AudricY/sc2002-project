@@ -81,6 +81,10 @@ public class WithdrawalManager {
                 updateWithdrawalRequest(request);
                 Application app = applicationManager.getApplicationById(request.getApplicationId());
                 
+                if (app == null) {
+                    return;
+                }
+                
                 boolean wasConfirmed = (app.getStatus().equals(ApplicationStatus.CONFIRMED));
                 String internshipId = app.getInternshipId();
 
@@ -88,10 +92,16 @@ public class WithdrawalManager {
 
                 if (wasConfirmed) {
                     Student student = (Student) userManager.getUserById(request.getStudentId());
+                    if (student == null) {
+                        return;
+                    }
                     student.setConfirmedPlacementId(null);
                     userManager.updateUser(student);
 
                     Internship internship = internshipManager.getInternshipById(internshipId);
+                    if (internship == null) {
+                        return;
+                    }
                     internship.decrementConfirmedSlots();
                     internshipManager.updateInternship(internship);
                 }
@@ -102,6 +112,7 @@ public class WithdrawalManager {
                 request.setReviewedByStaffId(staffId);
                 request.setReviewDate(LocalDateTime.now());
                 updateWithdrawalRequest(request);
+                break;
         
             default:
                 break;
