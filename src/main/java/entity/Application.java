@@ -3,6 +3,10 @@ package entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a student's application to an internship.
+ * Tracks application status and submission date.
+ */
 public class Application implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -12,6 +16,13 @@ public class Application implements Serializable {
     private ApplicationStatus status;
     private LocalDateTime applicationDate;
 
+    /**
+     * Creates a new application.
+     *
+     * @param applicationId unique application identifier
+     * @param studentId ID of the applying student
+     * @param internshipId ID of the internship being applied to
+     */
     public Application(String applicationId, String studentId, String internshipId) {
         this.applicationId = applicationId;
         this.studentId = studentId;

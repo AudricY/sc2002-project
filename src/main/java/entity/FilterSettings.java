@@ -3,6 +3,9 @@ package entity;
 import java.io.Serializable;
 import java.util.Comparator;
 
+/**
+ * Stores user-specific filter and sorting preferences for internship listings.
+ */
 public class FilterSettings implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -12,13 +15,25 @@ public class FilterSettings implements Serializable {
     private InternshipStatus statusFilter;
     private SortCriteria sortBy;
 
+    /**
+     * Available sorting criteria for internship listings.
+     */
     public enum SortCriteria {
+        /** Sort by title alphabetically */
         ALPHABETICAL,
+        /** Sort by opening date */
         OPENING_DATE,
+        /** Sort by closing date */
         CLOSING_DATE,
+        /** Sort by internship level */
         LEVEL
     }
 
+    /**
+     * Creates filter settings for a user.
+     *
+     * @param userId user identifier
+     */
     public FilterSettings(String userId) {
         this.userId = userId;
         this.levelFilter = null;
@@ -63,6 +78,11 @@ public class FilterSettings implements Serializable {
         this.sortBy = sortBy;
     }
 
+    /**
+     * Returns a comparator based on the current sort criteria.
+     *
+     * @return comparator for sorting internships
+     */
     public Comparator<Internship> getComparator() {
         switch (sortBy) {
             case OPENING_DATE:

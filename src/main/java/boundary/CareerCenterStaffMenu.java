@@ -7,6 +7,9 @@ import util.PasswordChangeResult;
 
 import java.util.*;
 
+/**
+ * Menu for career center staff operations including approvals, reviews, and report generation.
+ */
 public class CareerCenterStaffMenu extends MenuInterface {
     private AuthenticationController authController;
     private CareerCenterStaff staff;
@@ -15,6 +18,12 @@ public class CareerCenterStaffMenu extends MenuInterface {
     private ApplicationManager applicationManager;
     private WithdrawalManager withdrawalManager;
 
+    /**
+     * Creates a career center staff menu.
+     *
+     * @param scanner scanner for user input
+     * @param authController authentication controller
+     */
     public CareerCenterStaffMenu(Scanner scanner, AuthenticationController authController) {
         super(scanner);
         this.authController = authController;
@@ -72,6 +81,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         }
     }
 
+    /**
+     * Handles review and approval/rejection of company representative registrations.
+     */
     private void reviewRepresentatives() {
         printHeader("REVIEW COMPANY REPRESENTATIVE REGISTRATIONS");
 
@@ -112,6 +124,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Handles review and approval/rejection of internship opportunities submitted by representatives.
+     */
     private void reviewInternships() {
         printHeader("REVIEW INTERNSHIP OPPORTUNITIES");
 
@@ -155,6 +170,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Handles review and approval/rejection of student withdrawal requests.
+     */
     private void reviewWithdrawals() {
         printHeader("REVIEW WITHDRAWAL REQUESTS");
 
@@ -219,6 +237,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Displays menu for generating various reports.
+     */
     private void generateReports() {
         printHeader("GENERATE REPORTS");
 
@@ -242,6 +263,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         }
     }
 
+    /**
+     * Generates a report of all internships grouped by status.
+     */
     private void generateAllInternshipsReport() {
         printHeader("ALL INTERNSHIPS REPORT");
         Map<InternshipStatus, List<Internship>> groupedInternships = internshipManager.getAllInternships(Internship::getStatus);
@@ -270,6 +294,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Generates a filtered report of internships based on selected criteria.
+     */
     private void generateFilteredInternshipsReport() {
         printHeader("FILTERED INTERNSHIPS REPORT");
 
@@ -311,6 +338,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Generates a summary report of all student applications and their statuses.
+     */
     private void generateStudentApplicationsSummary() {
         printHeader("STUDENT APPLICATIONS SUMMARY");
 
@@ -338,6 +368,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Displays a list of all students in the system.
+     */
     private void viewAllStudents() {
         printHeader("ALL STUDENTS");
 
@@ -351,6 +384,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Displays the career center staff member's profile information.
+     */
     private void viewProfile() {
         printHeader("MY PROFILE");
         System.out.println("User ID: " + staff.getUserId());
@@ -360,6 +396,9 @@ public class CareerCenterStaffMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Handles password change process with validation and attempt limits.
+     */
     private void changePassword() {
         printHeader("CHANGE PASSWORD");
         final int MAX_ATTEMPTS = 3;

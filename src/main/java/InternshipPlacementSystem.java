@@ -4,7 +4,16 @@ import entity.UserRole;
 import util.FileManager;
 import java.util.Scanner;
 
+/**
+ * Main entry point for the Internship Placement Management System.
+ * Initializes the system and loads initial data from CSV files.
+ */
 public class InternshipPlacementSystem {
+    /**
+     * Main method that starts the application.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 

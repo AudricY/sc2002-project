@@ -5,15 +5,28 @@ import util.FileManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Manages user operations including authentication, CRUD, and CSV loading.
+ * Uses singleton pattern to ensure single instance.
+ */
 public class UserManager {
     private static final String USERS_FILE = "users.dat";
     private List<User> users;
     private static UserManager instance;
 
+    /**
+     * Private constructor for singleton pattern.
+     * Initializes users list from file.
+     */
     private UserManager() {
         this.users = FileManager.loadFromFile(USERS_FILE);
     }
 
+    /**
+     * Returns the singleton instance of UserManager.
+     *
+     * @return UserManager instance
+     */
     public static UserManager getInstance() {
         if (instance == null) {
             instance = new UserManager();
@@ -21,10 +34,20 @@ public class UserManager {
         return instance;
     }
 
+    /**
+     * Saves all users to file.
+     */
     public void saveUsers() {
         FileManager.saveToFile(USERS_FILE, users);
     }
 
+    /**
+     * Authenticates a user with provided credentials.
+     *
+     * @param userId user identifier
+     * @param password user password
+     * @return authenticated user, or null if authentication fails
+     */
     public User authenticateUser(String userId, String password) {
         return users.stream()
                 .filter(u -> u.getUserId().equals(userId) && u.getPassword().equals(password))
@@ -32,15 +55,32 @@ public class UserManager {
                 .orElse(null);
     }
 
+    /**
+     * Checks if a user exists.
+     *
+     * @param userId user identifier
+     * @return true if user exists, false otherwise
+     */
     public boolean userExists(String userId) {
         return users.stream().anyMatch(u -> u.getUserId().equals(userId));
     }
 
+    /**
+     * Adds a new user and saves to file.
+     *
+     * @param user user to add
+     */
     public void addUser(User user) {
         users.add(user);
         saveUsers();
     }
 
+    /**
+     * Gets a user by ID.
+     *
+     * @param userId user identifier
+     * @return user if found, null otherwise
+     */
     public User getUserById(String userId) {
         return users.stream()
                 .filter(u -> u.getUserId().equals(userId))
@@ -48,6 +88,11 @@ public class UserManager {
                 .orElse(null);
     }
 
+    /**
+     * Updates an existing user and saves to file.
+     *
+     * @param user updated user object
+     */
     public void updateUser(User user) {
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getUserId().equals(user.getUserId())) {
@@ -58,6 +103,11 @@ public class UserManager {
         }
     }
 
+    /**
+     * Gets all company representatives pending approval.
+     *
+     * @return list of pending representatives
+     */
     public List<CompanyRepresentative> getPendingRepresentatives() {
         return users.stream()
                 .filter(u -> u instanceof CompanyRepresentative)
@@ -66,6 +116,11 @@ public class UserManager {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets all students in the system.
+     *
+     * @return list of all students
+     */
     public List<Student> getAllStudents() {
         return users.stream()
                 .filter(u -> u instanceof Student)
@@ -73,6 +128,12 @@ public class UserManager {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Reviews and updates a company representative's approval status.
+     *
+     * @param rep company representative to review
+     * @param decision 1 for approve, 2 for reject
+     */
     public void reviewRepresentative(CompanyRepresentative rep, int decision) {
         switch (decision) {
             case 1:
@@ -88,6 +149,12 @@ public class UserManager {
         }
     }
 
+    /**
+     * Loads users from a CSV file.
+     *
+     * @param filename CSV filename
+     * @param role role of users to load
+     */
     public void loadUsersFromCSV(String filename, UserRole role) {
         List<String[]> records = FileManager.readCSV(filename, true);
 

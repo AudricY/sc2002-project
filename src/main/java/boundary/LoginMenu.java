@@ -6,9 +6,17 @@ import util.InputValidator;
 import util.PasswordChangeResult;
 import java.util.Scanner;
 
+/**
+ * Menu for user login and company representative registration.
+ */
 public class LoginMenu extends MenuInterface {
     private AuthenticationController authController;
 
+    /**
+     * Creates a login menu.
+     *
+     * @param scanner scanner for user input
+     */
     public LoginMenu(Scanner scanner) {
         super(scanner);
         this.authController = new AuthenticationController();
@@ -41,6 +49,9 @@ public class LoginMenu extends MenuInterface {
         }
     }
 
+    /**
+     * Handles user login process and navigates to appropriate menu on success.
+     */
     private void handleLogin() {
         System.out.println("\n--- Login ---");
 
@@ -60,6 +71,11 @@ public class LoginMenu extends MenuInterface {
         
     }
 
+    /**
+     * Handles post-login flow including mandatory password change for first-time users.
+     *
+     * @param user logged in user
+     */
     private void postLoginFlow(User user) {
         if (user.isFirstLogin()) {
             System.out.println("\nFirst-time login detected. You must change your password before continuing.");
@@ -78,6 +94,11 @@ public class LoginMenu extends MenuInterface {
         navigateToUserMenu(user);
     }
 
+    /**
+     * Handles password change process with validation and attempt limits.
+     *
+     * @return true if password changed successfully, false otherwise
+     */
     private boolean handlePasswordChange() {
         final int MAX_ATTEMPTS = 3;
         int attempts = 0;
@@ -111,6 +132,9 @@ public class LoginMenu extends MenuInterface {
         return false;
     }
 
+    /**
+     * Handles company representative registration process.
+     */
     private void handleRegistration() {
         System.out.println("\n--- Company Representative Registration ---");
         String name = getStringInput("Full Name: ");
@@ -153,6 +177,11 @@ public class LoginMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Navigates to the appropriate menu based on user role.
+     *
+     * @param user logged in user
+     */
     private void navigateToUserMenu(User user) {
         MenuInterface userMenu;
 

@@ -8,6 +8,9 @@ import util.PasswordChangeResult;
 
 import java.util.*;
 
+/**
+ * Menu for student operations including viewing internships, applying, and managing applications.
+ */
 public class StudentMenu extends MenuInterface {
     private AuthenticationController authController;
     private Student student;
@@ -16,6 +19,12 @@ public class StudentMenu extends MenuInterface {
     private WithdrawalManager withdrawalManager;
     private FilterManager filterManager;
 
+    /**
+     * Creates a student menu.
+     *
+     * @param scanner scanner for user input
+     * @param authController authentication controller
+     */
     public StudentMenu(Scanner scanner, AuthenticationController authController) {
         super(scanner);
         this.authController = authController;
@@ -77,6 +86,9 @@ public class StudentMenu extends MenuInterface {
         }
     }
 
+    /**
+     * Displays all available internships for the student based on eligibility and filters.
+     */
     private void viewAvailableInternships() {
         printHeader("AVAILABLE INTERNSHIPS");
 
@@ -100,6 +112,9 @@ public class StudentMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Displays all applications submitted by the student with their current status.
+     */
     private void viewMyApplications() {
         printHeader("MY APPLICATIONS");
 
@@ -129,6 +144,10 @@ public class StudentMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Handles the process of applying for an internship opportunity.
+     * Enforces the 3 concurrent application limit and date validation.
+     */
     private void applyForInternship() {
         printHeader("APPLY FOR INTERNSHIP");
 
@@ -187,6 +206,10 @@ public class StudentMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Allows student to accept a successful application as a confirmed placement.
+     * Withdraws all other successful applications automatically.
+     */
     private void acceptPlacement() {
         printHeader("ACCEPT PLACEMENT");
 
@@ -231,6 +254,10 @@ public class StudentMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Handles student request to withdraw from an application or confirmed placement.
+     * Requires staff approval.
+     */
     private void requestWithdrawal() {
         printHeader("REQUEST WITHDRAWAL");
 
@@ -282,6 +309,9 @@ public class StudentMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Displays the student's profile information including confirmed placement if any.
+     */
     private void viewProfile() {
         printHeader("MY PROFILE");
         System.out.println("User ID: " + student.getUserId());
@@ -300,6 +330,9 @@ public class StudentMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Handles password change process with validation and attempt limits.
+     */
     private void changePassword() {
         printHeader("CHANGE PASSWORD");
         final int MAX_ATTEMPTS = 3;
@@ -334,6 +367,9 @@ public class StudentMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Allows student to configure filter settings for internship listings.
+     */
     private void configureFilters() {
         printHeader("CONFIGURE FILTERS");
 

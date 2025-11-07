@@ -6,6 +6,9 @@ import util.*;
 import java.time.LocalDate;
 import java.util.*;
 
+/**
+ * Menu for company representative operations including creating internships and reviewing applications.
+ */
 public class CompanyRepresentativeMenu extends MenuInterface {
     private AuthenticationController authController;
     private CompanyRepresentative representative;
@@ -13,6 +16,12 @@ public class CompanyRepresentativeMenu extends MenuInterface {
     private ApplicationManager applicationManager;
     private UserManager userManager;
 
+    /**
+     * Creates a company representative menu.
+     *
+     * @param scanner scanner for user input
+     * @param authController authentication controller
+     */
     public CompanyRepresentativeMenu(Scanner scanner, AuthenticationController authController) {
         super(scanner);
         this.authController = authController;
@@ -73,6 +82,10 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         }
     }
 
+    /**
+     * Handles creation of a new internship opportunity.
+     * Enforces the 5 internship limit per representative.
+     */
     private void createInternship() {
         printHeader("CREATE INTERNSHIP OPPORTUNITY");
 
@@ -137,6 +150,9 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Displays menu for viewing internships with filtering options.
+     */
     private void viewMyInternships() {
         printHeader("CREATED INTERNSHIPS");
 
@@ -160,6 +176,9 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         
     }
 
+    /**
+     * Displays all internships created by the representative.
+     */
     private void viewAllInternships() {
         clearScreen();
         printHeader("MY INTERNSHIP OPPORTUNITIES");
@@ -181,6 +200,9 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Displays filtered internships based on user-selected criteria (status, level, or major).
+     */
     private void viewFilteredInternships() {
         clearScreen();
         printHeader("FILTERED INTERNSHIPS REPORT");
@@ -222,6 +244,10 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Allows editing of internship details before approval.
+     * Editing is restricted for approved or filled internships.
+     */
     private void editInternship() {
         printHeader("EDIT INTERNSHIP OPPORTUNITY");
 
@@ -291,6 +317,9 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Toggles the visibility of an internship opportunity for students.
+     */
     private void toggleVisibility() {
         printHeader("TOGGLE INTERNSHIP VISIBILITY");
 
@@ -323,6 +352,9 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Displays all applications received for a selected internship opportunity.
+     */
     private void viewApplicationsForInternship() {
         printHeader("VIEW APPLICATIONS");
 
@@ -375,6 +407,9 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Handles the review and approval/rejection of student applications.
+     */
     private void reviewApplication() {
         printHeader("REVIEW APPLICATION");
 
@@ -438,6 +473,9 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Displays the company representative's profile information.
+     */
     private void viewProfile() {
         printHeader("MY PROFILE");
         System.out.println("User ID: " + representative.getUserId());
@@ -447,6 +485,9 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         pause();
     }
 
+    /**
+     * Handles password change process with validation and attempt limits.
+     */
     private void changePassword() {
         printHeader("CHANGE PASSWORD");
         final int MAX_ATTEMPTS = 3;

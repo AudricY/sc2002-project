@@ -2,6 +2,10 @@ package entity;
 
 import java.io.Serializable;
 
+/**
+ * Abstract base class representing a user in the system.
+ * Provides common user attributes and authentication fields.
+ */
 public abstract class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -10,8 +14,18 @@ public abstract class User implements Serializable {
     protected String name;
     protected String email;
     protected UserRole role;
+    /** Indicates if this is the user's first login, requiring password change */
     protected boolean firstLogin;
 
+    /**
+     * Creates a new user with the specified details.
+     *
+     * @param userId unique user identifier
+     * @param password user password
+     * @param name user's full name
+     * @param email user's email address
+     * @param role user's role in the system
+     */
     public User(String userId, String password, String name, String email, UserRole role) {
         this.userId = userId;
         this.password = password;
@@ -69,5 +83,10 @@ public abstract class User implements Serializable {
         this.firstLogin = firstLogin;
     }
 
+    /**
+     * Returns role-specific profile information.
+     *
+     * @return formatted string containing profile details
+     */
     public abstract String getProfileInfo();
 }

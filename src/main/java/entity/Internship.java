@@ -3,6 +3,10 @@ package entity;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+/**
+ * Represents an internship opportunity posted by a company representative.
+ * Tracks application status, slots, and visibility settings.
+ */
 public class Internship implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -17,9 +21,25 @@ public class Internship implements Serializable {
     private String companyName;
     private String representativeId;
     private int totalSlots;
+    /** Number of slots confirmed by students */
     private int confirmedSlots;
+    /** Controls visibility to students */
     private boolean visible;
 
+    /**
+     * Creates a new internship opportunity.
+     *
+     * @param internshipId unique internship identifier
+     * @param title internship title
+     * @param description detailed description
+     * @param level required internship level
+     * @param preferredMajor preferred major field
+     * @param openingDate date when applications open
+     * @param closingDate date when applications close
+     * @param companyName name of the company
+     * @param representativeId ID of the company representative
+     * @param totalSlots total number of available positions
+     */
     public Internship(String internshipId, String title, String description,
                       InternshipLevel level, String preferredMajor,
                       LocalDate openingDate, LocalDate closingDate,
@@ -135,6 +155,9 @@ public class Internship implements Serializable {
         this.confirmedSlots = confirmedSlots;
     }
 
+    /**
+     * Increments confirmed slots and updates status to FILLED when full.
+     */
     public void incrementConfirmedSlots() {
         this.confirmedSlots++;
         if (this.confirmedSlots >= this.totalSlots) {
@@ -142,6 +165,9 @@ public class Internship implements Serializable {
         }
     }
 
+    /**
+     * Decrements confirmed slots and updates status if needed.
+     */
     public void decrementConfirmedSlots() {
         if (this.confirmedSlots > 0) {
             this.confirmedSlots--;
@@ -159,14 +185,29 @@ public class Internship implements Serializable {
         this.visible = visible;
     }
 
+    /**
+     * Checks if the internship has been approved.
+     *
+     * @return true if approved, false otherwise
+     */
     public boolean isApproved() {
         return status == InternshipStatus.APPROVED;
     }
 
+    /**
+     * Checks if all slots are filled.
+     *
+     * @return true if filled, false otherwise
+     */
     public boolean isFilled() {
         return status == InternshipStatus.FILLED;
     }
 
+    /**
+     * Checks if there are available slots.
+     *
+     * @return true if slots are available, false otherwise
+     */
     public boolean hasAvailableSlots() {
         return confirmedSlots < totalSlots;
     }

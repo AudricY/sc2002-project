@@ -3,6 +3,10 @@ package entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a student's request to withdraw from an application or placement.
+ * Requires approval from career center staff.
+ */
 public class WithdrawalRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -15,6 +19,14 @@ public class WithdrawalRequest implements Serializable {
     private String reviewedByStaffId;
     private LocalDateTime reviewDate;
 
+    /**
+     * Creates a new withdrawal request.
+     *
+     * @param requestId unique request identifier
+     * @param studentId ID of the student making the request
+     * @param applicationId ID of the application to withdraw from
+     * @param reason reason for withdrawal
+     */
     public WithdrawalRequest(String requestId, String studentId, String applicationId, String reason) {
         this.requestId = requestId;
         this.studentId = studentId;
