@@ -1,9 +1,6 @@
 package control;
 
 import entity.FilterSettings;
-import entity.InternshipLevel;
-import entity.Student;
-import entity.User;
 import util.FileManager;
 import java.util.*;
 
@@ -50,7 +47,7 @@ public class FilterManager {
 
     /**
      * Gets filter settings for a user, creating defaults if needed.
-     * For students, sets default level and major filters based on profile.
+     * Default settings have no filters applied (only alphabetical sorting).
      *
      * @param userId user identifier
      * @return filter settings for the user
@@ -58,20 +55,6 @@ public class FilterManager {
     public FilterSettings getFilterSettings(String userId) {
         if (!userFilters.containsKey(userId)) {
             FilterSettings settings = new FilterSettings(userId);
-            UserManager userManager = UserManager.getInstance();
-            User user = userManager.getUserById(userId);
-            if (user instanceof Student) {
-                Student student = (Student) user;
-                int year = student.getYearOfStudy();
-                InternshipLevel levelFilter;
-                if (year <= 2) {
-                    levelFilter = InternshipLevel.BASIC;
-                } else {
-                    levelFilter = InternshipLevel.ADVANCED;
-                }
-                settings.setLevelFilter(levelFilter);
-                settings.setMajorFilter(student.getMajor());
-            }
             userFilters.put(userId, settings);
             saveFilters();
         }
