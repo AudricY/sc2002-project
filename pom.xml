@@ -83,6 +83,20 @@
                     </archive>
                 </configuration>
             </plugin>
+
+            <!-- Maven Javadoc Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <author>true</author>
+                    <version>true</version>
+                    <private>true</private>
+                    <noqualifier>all</noqualifier>
+                    <reportOutputDirectory>${project.basedir}/apidocs</reportOutputDirectory>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
