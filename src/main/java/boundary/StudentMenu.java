@@ -375,21 +375,41 @@ public class StudentMenu extends MenuInterface {
 
         FilterSettings settings = filterManager.getFilterSettings(student.getUserId());
 
-        System.out.println("1. Set Sort Criteria");
-        System.out.println("2. Clear All Filters");
+        System.out.println("1. Set Level Filter");
+        System.out.println("2. Set Major Filter");
+        System.out.println("3. Set Sort Criteria");
+        System.out.println("4. Clear All Filters");
         System.out.println("0. Back");
 
         int choice = getIntInput("\nEnter choice: ");
 
         switch (choice) {
+            case 0:
+                pause();
+                return;
             case 1:
+                System.out.println("Select Level: 1=BASIC, 2=INTERMEDIATE, 3=ADVANCED, 0=NONE");
+                int level = getIntInput("Choice: ");
+                if (level == 0) {
+                    settings.setLevelFilter(null);
+                } else if (level >= 1 && level <= 3) {
+                    settings.setLevelFilter(InternshipLevel.values()[level - 1]);
+                }
+                break;
+            case 2:
+                String major = getStringInput("Enter preferred major (or leave blank): ");
+                settings.setMajorFilter(major.isEmpty() ? null : major);
+                break;
+            case 3:
                 System.out.println("1=ALPHABETICAL, 2=OPENING_DATE, 3=CLOSING_DATE, 4=LEVEL");
                 int sort = getIntInput("Choice: ");
                 if (sort >= 1 && sort <= 4) {
                     settings.setSortBy(FilterSettings.SortCriteria.values()[sort - 1]);
                 }
                 break;
-            case 2:
+            case 4:
+                settings.setLevelFilter(null);
+                settings.setMajorFilter(null);
                 settings.setSortBy(FilterSettings.SortCriteria.ALPHABETICAL);
                 System.out.println("All filters cleared.");
                 break;
