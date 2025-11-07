@@ -49,7 +49,6 @@ A comprehensive CLI-based internship placement management system built in Java, 
   - Multi-layered visibility control
   - Comprehensive reporting system
   - Input validation framework
-  - Forced password change on first login
   - Application lifecycle management
   - Eligibility-based filtering
   - Various business rule enforcements

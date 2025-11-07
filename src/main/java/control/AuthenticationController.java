@@ -73,9 +73,6 @@ public class AuthenticationController {
         }
 
         currentUser.setPassword(newPassword);
-        if (currentUser.isFirstLogin()) {
-            currentUser.setFirstLogin(false);
-        }
         userManager.updateUser(currentUser);
         return true;
     }

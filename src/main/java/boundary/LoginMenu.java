@@ -3,7 +3,6 @@ package boundary;
 import control.AuthenticationController;
 import entity.*;
 import util.InputValidator;
-import util.PasswordChangeResult;
 import java.util.Scanner;
 
 /**
@@ -72,64 +71,13 @@ public class LoginMenu extends MenuInterface {
     }
 
     /**
-     * Handles post-login flow including mandatory password change for first-time users.
+     * Handles post-login flow and navigates to user menu.
      *
      * @param user logged in user
      */
     private void postLoginFlow(User user) {
-        if (user.isFirstLogin()) {
-            System.out.println("\nFirst-time login detected. You must change your password before continuing.");
-            boolean passwordChanged = handlePasswordChange();
-
-            if (!passwordChanged) {
-                System.out.println("Password change cancelled or failed. You cannot proceed until your password is updated.");
-                pause();
-                return;
-            }
-
-            System.out.println("Password updated successfully. Proceeding to your account...");
-        }
-
         pause();
         navigateToUserMenu(user);
-    }
-
-    /**
-     * Handles password change process with validation and attempt limits.
-     *
-     * @return true if password changed successfully, false otherwise
-     */
-    private boolean handlePasswordChange() {
-        final int MAX_ATTEMPTS = 3;
-        int attempts = 0;
-        while (attempts < MAX_ATTEMPTS) {
-            String oldPassword = getStringInput("Enter current password: ");
-            String newPassword = getStringInput("Enter new password (min 6 characters): ");
-            String confirmPassword = getStringInput("Confirm new password: ");
-            attempts++;
-            PasswordChangeResult result = authController.attemptPasswordChange(oldPassword, newPassword, confirmPassword);
-
-            switch (result) {
-                case SUCCESS:
-                    System.out.println("Password changed successfully!");
-                    return true;
-                case MISMATCH:
-                    System.out.println("Passwords do not match. Try again.");
-                    break;
-                case INVALID_FORMAT:
-                    System.out.println("Password must be at least 6 characters. Try again.");
-                    break;
-                case INCORRECT_OLD:
-                    System.out.println("Current password incorrect. Try again.");
-                    break;
-                case DUPLICATE:
-                    System.out.println("Your new password must be different from the old one. Try again.");
-                    break;
-            }
-        }
-
-        System.out.println("Too many failed attempts.");
-        return false;
     }
 
     /**

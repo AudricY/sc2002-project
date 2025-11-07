@@ -43,8 +43,7 @@
 
 **Expected**:
 - Login successful
-- First login password change prompt appears
-- After password change, student menu displays
+- Student menu displays
 
 **Result**: ✓ PASS
 

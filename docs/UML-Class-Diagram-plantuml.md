@@ -60,7 +60,6 @@ abstract class User {
     -name : String
     -email : String
     -role : UserRole
-    -firstLogin : boolean
     +getters/setters()
     +{abstract} getProfileInfo() : String
 }

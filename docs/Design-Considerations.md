@@ -212,7 +212,6 @@ While security is not a primary focus, the system implements basic measures:
 1. **Password Storage**: Stored in plain text (acceptable for educational project; production would use hashing)
 2. **Authentication Check**: Company representatives must be approved before access
 3. **Authorization**: Menu access restricted by user role
-4. **First Login**: Forces password change on initial login
 
 ## 9. Alternative Approaches Considered
 

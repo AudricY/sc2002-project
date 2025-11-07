@@ -54,10 +54,6 @@ public class AuthenticationTests {
         // Verify default passwords
         assertEquals("password", student.getPassword());
         assertEquals("password", staff.getPassword());
-
-        // Verify first login flag
-        assertTrue(student.isFirstLogin(), "Students should have first login flag set");
-        assertTrue(staff.isFirstLogin(), "Staff should have first login flag set");
     }
 
     @Test
@@ -73,15 +69,9 @@ public class AuthenticationTests {
         assertEquals("U2310001A", currentUser.getUserId());
         assertTrue(currentUser instanceof Student, "Current user should be a Student");
 
-        // Verify first login flag
-        assertTrue(currentUser.isFirstLogin(), "First login flag should be true");
-
-        // Simulate password change on first login
+        // Simulate password change
         PasswordChangeResult passwordChangeSuccess = authController.attemptPasswordChange("password", "newPassword123", "newPassword123");
         assertTrue(passwordChangeSuccess.equals(PasswordChangeResult.SUCCESS), "Password change should succeed");
-
-        // Verify first login flag is cleared
-        assertFalse(currentUser.isFirstLogin(), "First login flag should be false after password change");
 
         // Verify old password no longer works
         authController.logout();

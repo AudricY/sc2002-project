@@ -99,7 +99,6 @@ classDiagram
     #name: String
     #email: String
     #role: UserRole
-    #firstLogin: boolean
     +User(userId: String, password: String, name: String, email: String, role: UserRole)
     +getUserId() String
     +setUserId(userId: String) void
@@ -111,8 +110,6 @@ classDiagram
     +setEmail(email: String) void
     +getRole() UserRole
     +setRole(role: UserRole) void
-    +isFirstLogin() boolean
-    +setFirstLogin(firstLogin: boolean) void
     +getProfileInfo() String &lt;&lt;abstract&gt;&gt;
     }
     class UserRole {

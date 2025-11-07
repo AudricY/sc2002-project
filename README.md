@@ -29,6 +29,14 @@ A comprehensive CLI-based system for managing internship placements between stud
 
 ## Compilation and Execution
 
+### Using Shell Scripts (Easiest)
+
+#### Compile and Run
+```bash
+./compile.sh    # Compile the project
+./run.sh        # Run the application
+```
+
 ### Using Maven (Recommended)
 
 #### Compile
@@ -38,7 +46,7 @@ mvn compile
 
 #### Run
 ```bash
-mvn exec:java -Dexec.mainClass="InternshipPlacementSystem"
+mvn exec:java -Dexec.mainClass="com.internship.InternshipPlacementSystem"
 ```
 
 #### Run Tests
@@ -61,12 +69,12 @@ mvn clean compile
 
 #### Compile
 ```bash
-javac -d bin -sourcepath src src/InternshipPlacementSystem.java
+javac -d bin -sourcepath src/main/java src/main/java/com/internship/InternshipPlacementSystem.java
 ```
 
 #### Run
 ```bash
-java -cp bin InternshipPlacementSystem
+java -cp bin com.internship.InternshipPlacementSystem
 ```
 
 ## Initial Setup
@@ -101,12 +109,13 @@ All data is stored in serialized files in the `data/` directory:
 ## Project Structure
 
 ```
-src/
+src/main/java/
+├── com/internship/
+│   └── InternshipPlacementSystem.java  # Main entry point
 ├── entity/           # Entity classes (User hierarchy, Internship, Application, etc.)
 ├── control/          # Control classes (Managers and Controllers)
 ├── boundary/         # Boundary classes (Menus and UI)
-├── util/             # Utility classes (FileManager, Validators, IdGenerator)
-└── InternshipPlacementSystem.java  # Main entry point
+└── util/             # Utility classes (FileManager, Validators, IdGenerator)
 
 data/                 # Data files
 docs/                 # Documentation and diagrams

@@ -14,8 +14,6 @@ public abstract class User implements Serializable {
     protected String name;
     protected String email;
     protected UserRole role;
-    /** Indicates if this is the user's first login, requiring password change */
-    protected boolean firstLogin;
 
     /**
      * Creates a new user with the specified details.
@@ -32,7 +30,6 @@ public abstract class User implements Serializable {
         this.name = name;
         this.email = email;
         this.role = role;
-        this.firstLogin = true;
     }
 
     public String getUserId() {
@@ -73,14 +70,6 @@ public abstract class User implements Serializable {
 
     public void setRole(UserRole role) {
         this.role = role;
-    }
-
-    public boolean isFirstLogin() {
-        return firstLogin;
-    }
-
-    public void setFirstLogin(boolean firstLogin) {
-        this.firstLogin = firstLogin;
     }
 
     /**

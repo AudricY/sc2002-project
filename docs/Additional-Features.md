@@ -106,24 +106,7 @@ This document highlights functionality implemented beyond the mandatory requirem
 
 **Location**: `InputValidator.java`
 
-## 7. Forced Password Change on First Login
-
-**Beyond Requirements**: Security enhancement not explicitly required.
-
-**Implementation**:
-- Tracks first login status in `User` entity
-- Forces password change before accessing main menu
-- Validates password confirmation match
-- Enforces password strength requirements
-
-**Benefits**:
-- Improves security posture
-- Ensures users own their credentials
-- Prevents default password usage
-
-**Location**: `LoginMenu.handleLogin()`, `LoginMenu.handlePasswordChange()`
-
-## 8. Application Lifecycle Management
+## 7. Application Lifecycle Management
 
 **Beyond Requirements**: Sophisticated application state handling.
 
@@ -140,7 +123,7 @@ This document highlights functionality implemented beyond the mandatory requirem
 
 **Location**: `StudentMenu.acceptPlacement()`
 
-## 9. Eligibility-Based Filtering
+## 8. Eligibility-Based Filtering
 
 **Beyond Requirements**: Automatic eligibility enforcement beyond basic matching.
 
@@ -157,7 +140,7 @@ This document highlights functionality implemented beyond the mandatory requirem
 
 **Location**: `InternshipManager.isEligibleForInternship()`, `InternshipManager.getVisibleInternshipsForStudent()`
 
-## 10. Concurrent Application Limit Enforcement
+## 9. Concurrent Application Limit Enforcement
 
 **Beyond Requirements**: Real-time enforcement with clear feedback.
 
@@ -174,7 +157,7 @@ This document highlights functionality implemented beyond the mandatory requirem
 
 **Location**: `ApplicationManager.countPendingApplicationsByStudent()`, `StudentMenu.applyForInternship()`
 
-## 11. Representative Opportunity Limit Tracking
+## 10. Representative Opportunity Limit Tracking
 
 **Beyond Requirements**: Proactive limit enforcement with feedback.
 
@@ -191,7 +174,7 @@ This document highlights functionality implemented beyond the mandatory requirem
 
 **Location**: `InternshipManager.countInternshipsByRepresentative()`, `CompanyRepresentativeMenu.createInternship()`
 
-## 12. Restriction on Editing Approved Internships
+## 11. Restriction on Editing Approved Internships
 
 **Beyond Requirements**: Explicit workflow enforcement.
 
@@ -208,7 +191,7 @@ This document highlights functionality implemented beyond the mandatory requirem
 
 **Location**: `CompanyRepresentativeMenu.editInternship()`
 
-## 13. Duplicate Application Prevention
+## 12. Duplicate Application Prevention
 
 **Beyond Requirements**: Prevents reapplication to same internship.
 
@@ -224,7 +207,7 @@ This document highlights functionality implemented beyond the mandatory requirem
 
 **Location**: `ApplicationManager.hasAppliedToInternship()`, `StudentMenu.applyForInternship()`
 
-## 14. Pending Withdrawal Check
+## 13. Pending Withdrawal Check
 
 **Beyond Requirements**: Prevents duplicate withdrawal requests.
 
@@ -240,7 +223,7 @@ This document highlights functionality implemented beyond the mandatory requirem
 
 **Location**: `WithdrawalManager.hasPendingWithdrawal()`, `StudentMenu.requestWithdrawal()`
 
-## 15. User-Friendly CLI Interface
+## 14. User-Friendly CLI Interface
 
 **Beyond Requirements**: Enhanced usability features.
 
