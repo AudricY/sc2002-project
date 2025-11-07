@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"boundary"},{"l":"com.internship"},{"l":"control"},{"l":"entity"},{"l":"util"}];updateSearchResults();

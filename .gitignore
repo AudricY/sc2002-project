@@ -13,6 +13,9 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+# Generated documentation
+apidocs/
+
 # IDE
 .vscode/
 .idea/
