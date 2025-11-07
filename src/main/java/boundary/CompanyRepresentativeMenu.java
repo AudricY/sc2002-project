@@ -15,6 +15,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
     private InternshipManager internshipManager;
     private ApplicationManager applicationManager;
     private UserManager userManager;
+    private FilterManager filterManager;
 
     /**
      * Creates a company representative menu.
@@ -29,6 +30,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         this.internshipManager = InternshipManager.getInstance();
         this.applicationManager = ApplicationManager.getInstance();
         this.userManager = UserManager.getInstance();
+        this.filterManager = FilterManager.getInstance();
     }
 
     @Override
@@ -43,6 +45,7 @@ public class CompanyRepresentativeMenu extends MenuInterface {
         System.out.println("6. Review Application");
         System.out.println("7. View Profile");
         System.out.println("8. Change Password");
+        System.out.println("9. Configure Filters");
         System.out.println("0. Logout");
         System.out.print("\nEnter choice: ");
     }
@@ -74,6 +77,8 @@ public class CompanyRepresentativeMenu extends MenuInterface {
             case 8:
                 changePassword();
                 break;
+            case 9:
+                configureFilters();
             case 0:
                 break;
             default:
@@ -206,33 +211,10 @@ public class CompanyRepresentativeMenu extends MenuInterface {
     private void viewFilteredInternships() {
         clearScreen();
         printHeader("FILTERED INTERNSHIPS REPORT");
-
-        System.out.println("Filter Options:");
-        System.out.println("1. By Status");
-        System.out.println("2. By Level");
-        System.out.println("3. By Major");
-
-        int filterChoice = getIntInput("Select filter: ");
-        FilterSettings settings = new FilterSettings("report");
-                if (filterChoice == 1) {
-            System.out.println("1=PENDING, 2=APPROVED, 3=REJECTED, 4=FILLED");
-            int statusChoice = getIntInput("Select status: ");
-            if (statusChoice >= 1 && statusChoice <= 4) {
-                settings.setStatusFilter(InternshipStatus.values()[statusChoice - 1]);
-            }
-        } else if (filterChoice == 2) {
-            System.out.println("1=BASIC, 2=INTERMEDIATE, 3=ADVANCED");
-            int levelChoice = getIntInput("Select level: ");
-            if (levelChoice >= 1 && levelChoice <= 3) {
-                settings.setLevelFilter(InternshipLevel.values()[levelChoice - 1]);
-            }
-        } else if (filterChoice == 3) {
-            String major = getStringInput("Enter major: ");
-            settings.setMajorFilter(major);
-        }
-
-        List<Internship> allInternships = internshipManager.getAllInternships();
-
+        
+        FilterSettings settings = filterManager.getFilterSettings(representative.getUserId());
+        List<Internship> allInternships = internshipManager.getInternshipsByRepresentative(
+                representative.getUserId());
         List<Internship> filtered = internshipManager.filterInternships(allInternships, settings);
 
         System.out.printf("\nFound %d internships:\n", filtered.size());
@@ -251,8 +233,10 @@ public class CompanyRepresentativeMenu extends MenuInterface {
     private void editInternship() {
         printHeader("EDIT INTERNSHIP OPPORTUNITY");
 
-        List<Internship> internships = internshipManager.getInternshipsByRepresentative(
+        FilterSettings settings = filterManager.getFilterSettings(representative.getUserId());
+        List<Internship> allInternships = internshipManager.getInternshipsByRepresentative(
                 representative.getUserId());
+        List<Internship> internships = internshipManager.filterInternships(allInternships, settings);
 
         if (internships.isEmpty()) {
             System.out.println("You have no internships to edit.");
@@ -323,8 +307,10 @@ public class CompanyRepresentativeMenu extends MenuInterface {
     private void toggleVisibility() {
         printHeader("TOGGLE INTERNSHIP VISIBILITY");
 
-        List<Internship> internships = internshipManager.getInternshipsByRepresentative(
+        FilterSettings settings = filterManager.getFilterSettings(representative.getUserId());
+        List<Internship> allInternships = internshipManager.getInternshipsByRepresentative(
                 representative.getUserId());
+        List<Internship> internships = internshipManager.filterInternships(allInternships, settings);
 
         if (internships.isEmpty()) {
             System.out.println("You have no internships.");
@@ -358,8 +344,10 @@ public class CompanyRepresentativeMenu extends MenuInterface {
     private void viewApplicationsForInternship() {
         printHeader("VIEW APPLICATIONS");
 
-        List<Internship> internships = internshipManager.getInternshipsByRepresentative(
+        FilterSettings settings = filterManager.getFilterSettings(representative.getUserId());
+        List<Internship> allInternships = internshipManager.getInternshipsByRepresentative(
                 representative.getUserId());
+        List<Internship> internships = internshipManager.filterInternships(allInternships, settings);
 
         if (internships.isEmpty()) {
             System.out.println("You have no internships.");
@@ -413,8 +401,10 @@ public class CompanyRepresentativeMenu extends MenuInterface {
     private void reviewApplication() {
         printHeader("REVIEW APPLICATION");
 
-        List<Internship> internships = internshipManager.getInternshipsByRepresentative(
+        FilterSettings settings = filterManager.getFilterSettings(representative.getUserId());
+        List<Internship> allInternships = internshipManager.getInternshipsByRepresentative(
                 representative.getUserId());
+        List<Internship> internships = internshipManager.filterInternships(allInternships, settings);
 
         if (internships.isEmpty()) {
             System.out.println("You have no internships.");
@@ -519,6 +509,56 @@ public class CompanyRepresentativeMenu extends MenuInterface {
             }
         }
         System.out.println("Too many failed attempts.");
+        pause();
+    }
+
+    private void configureFilters() {
+        printHeader("CONFIGURE FILTERS");
+
+        FilterSettings settings = filterManager.getFilterSettings(representative.getUserId());
+
+        System.out.println("1. Set Level Filter");
+        System.out.println("2. Set Major Filter");
+        System.out.println("3. Set Sort Criteria");
+        System.out.println("4. Clear All Filters");
+        System.out.println("0. Back");
+
+        int choice = getIntInput("\nEnter choice: ");
+
+        switch (choice) {
+            case 0:
+                pause();
+                return;
+            case 1:
+                System.out.println("Select Level: 1=BASIC, 2=INTERMEDIATE, 3=ADVANCED, 0=NONE");
+                int level = getIntInput("Choice: ");
+                if (level == 0) {
+                    settings.setLevelFilter(null);
+                } else if (level >= 1 && level <= 3) {
+                    settings.setLevelFilter(InternshipLevel.values()[level - 1]);
+                }
+                break;
+            case 2:
+                String major = getStringInput("Enter preferred major (or leave blank): ");
+                settings.setMajorFilter(major.isEmpty() ? null : major);
+                break;
+            case 3:
+                System.out.println("1=ALPHABETICAL, 2=OPENING_DATE, 3=CLOSING_DATE, 4=LEVEL");
+                int sort = getIntInput("Choice: ");
+                if (sort >= 1 && sort <= 4) {
+                    settings.setSortBy(FilterSettings.SortCriteria.values()[sort - 1]);
+                }
+                break;
+            case 4:
+                settings.setLevelFilter(null);
+                settings.setMajorFilter(null);
+                settings.setSortBy(FilterSettings.SortCriteria.ALPHABETICAL);
+                System.out.println("All filters cleared.");
+                break;
+        }
+        
+        filterManager.updateFilterSettings(settings);
+        System.out.println("Filter settings updated.");
         pause();
     }
 }

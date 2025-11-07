@@ -390,8 +390,6 @@ public class StudentMenu extends MenuInterface {
                 }
                 break;
             case 2:
-                settings.setLevelFilter(null);
-                settings.setMajorFilter(null);
                 settings.setSortBy(FilterSettings.SortCriteria.ALPHABETICAL);
                 System.out.println("All filters cleared.");
                 break;
