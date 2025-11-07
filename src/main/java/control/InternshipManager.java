@@ -199,6 +199,7 @@ public class InternshipManager {
         switch(decision){
             case 1:
                 internship.setStatus(InternshipStatus.APPROVED);
+                internship.setVisible(true); // Ensure approved internships are visible to students
                 updateInternship(internship);
                 break;
             case 2:
