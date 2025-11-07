@@ -8,4 +8,4 @@ fi
 echo "Starting Internship Placement Management System..."
 echo ""
 
-java -cp bin InternshipPlacementSystem
+java -cp bin com.internship.InternshipPlacementSystem

@@ -78,7 +78,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>InternshipPlacementSystem</mainClass>
+                            <mainClass>com.internship.InternshipPlacementSystem</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

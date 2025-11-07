@@ -4,7 +4,7 @@ echo "Compiling Internship Placement Management System..."
 
 mkdir -p bin
 
-javac -d bin -sourcepath src src/InternshipPlacementSystem.java
+javac -d bin -sourcepath src/main/java src/main/java/com/internship/InternshipPlacementSystem.java
 
 if [ $? -eq 0 ]; then
     echo "Compilation successful!"
