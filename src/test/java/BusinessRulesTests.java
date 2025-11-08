@@ -46,7 +46,7 @@ public class BusinessRulesTests {
         // Verify default settings
         assertEquals(SortCriteria.ALPHABETICAL, settings.getSortBy(),
             "Default sort should be alphabetical");
-        assertEquals(settings.getLevelFilter(), InternshipLevel.BASIC, "Default level filter should be basic");
+        assertNull(settings.getLevelFilter(), "Default level filter should be null");
 
         // Configure filters
         settings.setLevelFilter(InternshipLevel.BASIC);
@@ -77,7 +77,7 @@ public class BusinessRulesTests {
         FilterSettings newUserSettings = filterManager.getFilterSettings("U2310002B");
         assertEquals(SortCriteria.ALPHABETICAL, newUserSettings.getSortBy(),
             "New users should have default alphabetical sort");
-        assertEquals(newUserSettings.getLevelFilter(), InternshipLevel.ADVANCED, "Year 3 and above users should have advanced filter by default");
+        assertNull(newUserSettings.getLevelFilter(), "Default level filter should be null");
     }
 
     @Test
