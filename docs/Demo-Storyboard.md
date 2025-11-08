@@ -340,8 +340,8 @@ Demonstrate student withdrawal request and staff approval process, showing slot 
    - Note: You should see internships matching Computer Science major
 3. Select option **8** (Configure Filter Settings)
 4. Set filters and sorting criteria:
-   - Filter by Level: `1` (BASIC)
-   - Sort by: `3` (Closing Date)
+   - Filter by Level: `1` (BASIC) - Select option **1**, then enter `1`
+   - Sort by: `2` (Closing Date) - Select option **2**, then enter `3`
 5. View internships - now filtered and sorted
 6. Navigate to other menus and back
 7. Return to View Internships - filters still active
@@ -352,9 +352,10 @@ Demonstrate student withdrawal request and staff approval process, showing slot 
 
 **Presenter Notes:**
 - Students automatically see ONLY internships matching their major (hard filter - cannot be disabled)
-- Major filtering is automatic and mandatory based on student profile
+- Major filtering is automatic and mandatory based on student profile - students cannot manually set major filter
 - Level filter allows further refinement within matching majors (Year 3+ students filtering BASIC/INTERMEDIATE/ADVANCED)
 - Sort criteria options: Alphabetical (default), Opening Date, Closing Date, Level
+- Students can configure level filter and sort criteria, but not major filter
 - Highlight persistence across logout/login
 - User-specific filter settings stored in `filters.dat`
 
