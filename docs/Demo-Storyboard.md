@@ -8,8 +8,8 @@
 
 ## Pre-Demo Setup Checklist
 
+- [ ] **Clear existing data and seed demo data:** `./setup_demo.sh`
 - [ ] Compile the application: `./compile.sh`
-- [ ] Ensure data files are ready in `data/` directory
 - [ ] Verify pre-seeded internships exist (8 internships from demo.rep@techcorp.com)
 - [ ] Test run the application once to verify working state
 - [ ] Close unnecessary applications and terminal windows
@@ -32,7 +32,7 @@
 | Career Center Staff | tan002 | password | Mr. Tan Boon Kiat - Alternative staff |
 | Career Center Staff | lee003 | password | Ms. Lee Mei Ling - Alternative staff |
 | Company Rep (Demo) | demo.rep@techcorp.com | password | Pre-approved, owns seeded internships |
-| Company Rep | (register new) | password123 | Will register during demo |
+| Company Rep | (register new) | password | Will register during demo |
 
 ---
 
@@ -100,7 +100,7 @@ Demonstrate company representative registration, staff approval process, interns
 2. Enter details:
    - Name: `bob`
    - Email: `bob@techcorp.com`
-   - Password: `password123`
+   - Password: `password`
    - Company Name: `TechCorp Solutions`
    - Department: `Human Resources`
    - Position: `Recruitment Manager`
@@ -134,7 +134,7 @@ Demonstrate company representative registration, staff approval process, interns
 #### 2.3: Representative Creates Internship (1 min 15 sec)
 
 **Actions:**
-1. Login as `bob@techcorp.com` with password `password123`
+1. Login as `bob@techcorp.com` with password `password`
 2. Login should now SUCCEED
 3. Select option **1** (Create Internship Opportunity)
 4. Enter internship details:
@@ -146,7 +146,7 @@ Demonstrate company representative registration, staff approval process, interns
    - Closing Date: `2026-12-31`
    - Number of Slots: `5`
 5. Note internship created with PENDING status
-6. Record the Internship ID (e.g., INT001)
+6. **Record the Internship ID** (e.g., INT1001 - will be generated automatically)
 7. Logout
 
 **Expected Result:** Internship created successfully with PENDING status, not yet visible to students.
@@ -161,7 +161,7 @@ Demonstrate company representative registration, staff approval process, interns
 **Actions:**
 1. Login as `sng001`
 2. Select option **2** (Review Internship Opportunities)
-3. Select the pending internship `INT001`
+3. Select the pending internship (the one created by bob@techcorp.com - e.g., INT1001)
 4. Select option **1** (Approve)
 5. Confirm approval
 6. Note status changed to APPROVED
@@ -202,12 +202,14 @@ Demonstrate student viewing internships, applying, company rep reviewing and app
 
 **Actions:**
 1. Select option **3** (Apply for Internship)
-2. Enter the Internship ID: `INT001`
-3. Confirm application
-4. Note success message
-5. Select option **2** (View My Applications)
-6. Show the application with PENDING status
-7. Logout
+2. A list of available internships will be displayed
+3. **Select the internship created in Workflow 1** (e.g., select option 1 or 2 from the numbered list)
+   - Note: The internship ID will be shown (e.g., INT1001)
+4. Confirm application
+5. Note success message
+6. Select option **2** (View My Applications)
+7. Show the application with PENDING status
+8. Logout
 
 **Expected Result:** Application submitted successfully with PENDING status.
 
@@ -220,16 +222,21 @@ Demonstrate student viewing internships, applying, company rep reviewing and app
 **Actions:**
 1. Login as `bob@techcorp.com`
 2. Select option **2** (View My Internship Opportunities)
-3. Show the internship with application count
-4. Select option **5** (View Applications for Internship)
-5. Enter Internship ID: `INT001`
-6. Select option **6** (Review Application)
-7. Select the application from U2310001A
-8. View student details (Year, Major, etc.)
-9. Select option **1** (Approve)
-10. Confirm approval
-11. Note success message
-12. Logout
+3. Select option **1** (All Internships)
+4. Show the internship created in Workflow 1 with application count
+5. Press Enter to return
+6. Select option **5** (View Applications for Internship)
+7. Select the internship from the list (the one created in Workflow 1)
+8. View the application from U2310001A
+9. Press Enter to return
+10. Select option **6** (Review Application)
+11. Select the internship from the list
+12. Select the application from U2310001A
+13. View student details (Year, Major, etc.)
+14. Select option **1** (Approve)
+15. Confirm approval
+16. Note success message
+17. Logout
 
 **Expected Result:** Application status changed to SUCCESSFUL, student notified.
 
