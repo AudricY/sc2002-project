@@ -444,4 +444,61 @@ public class ApplicationWorkflowTests {
         assertNotNull(validApplication, 
             "Application should be created for internship with future closing date");
     }
+
+    @Test
+    @DisplayName("Slot Availability Enforcement on Approval")
+    public void testSlotAvailabilityEnforcementOnApproval() {
+        // Setup: Create internship with 2 slots
+        authController.registerCompanyRepresentative(
+            "Jane Doe", "jane.doe@techcorp.com", "password123",
+            "TechCorp", "Engineering", "Manager"
+        );
+        CompanyRepresentative rep = userManager.getPendingRepresentatives().get(0);
+        TestHelpers.approveRepresentative(rep.getUserId());
+
+        TestHelpers.createInternship(
+            "INT001", "Software Developer Intern", "Description",
+            InternshipLevel.BASIC, "Computer Science", "TechCorp", rep.getUserId(), 2
+        );
+        TestHelpers.approveInternship("INT001");
+
+        // Three students apply
+        Application app1 = TestHelpers.createApplication("APP001", "U2310001A", "INT001");
+        Application app2 = TestHelpers.createApplication("APP002", "U2310002B", "INT001");
+        Application app3 = TestHelpers.createApplication("APP003", "U2310003C", "INT001");
+
+        // Verify all applications are PENDING
+        assertEquals(ApplicationStatus.PENDING, app1.getStatus());
+        assertEquals(ApplicationStatus.PENDING, app2.getStatus());
+        assertEquals(ApplicationStatus.PENDING, app3.getStatus());
+
+        // Approve first 2 applications (should succeed - slots available)
+        applicationManager.reviewApplication(app1, 1);
+        applicationManager.reviewApplication(app2, 1);
+
+        // Verify first 2 are approved
+        Application approved1 = applicationManager.getApplicationById("APP001");
+        Application approved2 = applicationManager.getApplicationById("APP002");
+        assertEquals(ApplicationStatus.SUCCESSFUL, approved1.getStatus());
+        assertEquals(ApplicationStatus.SUCCESSFUL, approved2.getStatus());
+
+        // Attempt to approve 3rd application (should fail due to slot limit)
+        // Since we have 2 slots and 2 successful applications, no more should be approved
+        applicationManager.reviewApplication(app3, 1);
+        
+        // Verify 3rd application should remain PENDING (not approved due to slot limit)
+        Application app3AfterAttempt = applicationManager.getApplicationById("APP003");
+        // Note: This test will initially fail because the bug allows unlimited approvals
+        // After fixing the bug, this assertion should pass
+        assertEquals(ApplicationStatus.PENDING, app3AfterAttempt.getStatus(),
+            "Third application should remain PENDING when all slots are filled with successful applications");
+
+        // Verify only 2 applications are SUCCESSFUL
+        List<Application> allApps = applicationManager.getApplicationsByInternship("INT001");
+        long successfulCount = allApps.stream()
+            .filter(a -> a.getStatus() == ApplicationStatus.SUCCESSFUL)
+            .count();
+        assertEquals(2, successfulCount, 
+            "Only 2 applications should be SUCCESSFUL (matching slot limit)");
+    }
 }

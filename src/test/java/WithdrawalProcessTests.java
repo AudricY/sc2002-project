@@ -55,7 +55,7 @@ public class WithdrawalProcessTests {
         TestHelpers.approveInternship("INT001");
 
         // Student applies
-        Application application = TestHelpers.createApplication("APP001", "U2310004D", "INT001");
+        TestHelpers.createApplication("APP001", "U2310004D", "INT001");
 
         // Student requests withdrawal
         WithdrawalRequest withdrawalRequest = TestHelpers.createWithdrawalRequest(
@@ -199,6 +199,69 @@ public class WithdrawalProcessTests {
         Internship internship = internshipManager.getInternshipById("INT001");
         assertEquals(0, internship.getConfirmedSlots(),
             "Confirmed slots should remain 0 since student never accepted");
+
+        // Verify student has no confirmed placement
+        Student student = (Student) userManager.getUserById("U2310004D");
+        assertNull(student.getConfirmedPlacementId(),
+            "Student should not have confirmed placement");
+    }
+
+    @Test
+    @DisplayName("TC-014 Extended: Staff Approves Withdrawal from Successful Application")
+    public void testWithdrawalFromSuccessfulApplication() {
+        // Setup: Create internship and application
+        authController.registerCompanyRepresentative(
+            "Jane Doe", "jane.doe@techcorp.com", "password123",
+            "TechCorp", "Engineering", "Manager"
+        );
+        CompanyRepresentative rep = userManager.getPendingRepresentatives().get(0);
+        TestHelpers.approveRepresentative(rep.getUserId());
+
+        TestHelpers.createInternship(
+            "INT001", "Software Developer Intern", "Description",
+            InternshipLevel.BASIC, "Computer Science", "TechCorp", rep.getUserId(), 5
+        );
+        TestHelpers.approveInternship("INT001");
+
+        // Student applies and gets approved (status = SUCCESSFUL, but NOT yet accepted)
+        TestHelpers.createApplication("APP001", "U2310004D", "INT001");
+        TestHelpers.approveApplication("APP001");
+        
+        // Verify application is SUCCESSFUL but not CONFIRMED
+        Application successfulApp = applicationManager.getApplicationById("APP001");
+        assertEquals(ApplicationStatus.SUCCESSFUL, successfulApp.getStatus());
+        assertNotEquals(ApplicationStatus.CONFIRMED, successfulApp.getStatus());
+        assertNotEquals(ApplicationStatus.PENDING, successfulApp.getStatus());
+
+        // Verify no slots confirmed yet
+        Internship internship = internshipManager.getInternshipById("INT001");
+        assertEquals(0, internship.getConfirmedSlots(), 
+            "No slots should be confirmed since student hasn't accepted yet");
+
+        // Student requests withdrawal before accepting placement
+        WithdrawalRequest withdrawalRequest = TestHelpers.createWithdrawalRequest(
+            "WR001",
+            "U2310004D",
+            "APP001",
+            "Found better opportunity"
+        );
+
+        // Staff approves withdrawal using the actual withdrawal manager method
+        withdrawalManager.reviewWithdrawal(withdrawalRequest, "STAFF001", 1);
+
+        // Verify withdrawal status
+        WithdrawalRequest approvedRequest = withdrawalManager.getWithdrawalById("WR001");
+        assertEquals(ApprovalStatus.APPROVED, approvedRequest.getStatus());
+        assertEquals("STAFF001", approvedRequest.getReviewedByStaffId());
+
+        // Verify application removed
+        Application removedApp = applicationManager.getApplicationById("APP001");
+        assertNull(removedApp, "Application should be removed from system");
+
+        // Verify internship slots unchanged (student never confirmed/accepted)
+        Internship updatedInternship = internshipManager.getInternshipById("INT001");
+        assertEquals(0, updatedInternship.getConfirmedSlots(),
+            "Confirmed slots should remain 0 since student never accepted placement");
 
         // Verify student has no confirmed placement
         Student student = (Student) userManager.getUserById("U2310004D");

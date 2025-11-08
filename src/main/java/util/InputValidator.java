@@ -1,12 +1,16 @@
 package util;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 
 /**
  * Utility class for validating user input.
  */
 public class InputValidator {
+    private static final DateTimeFormatter VALIDATION_FORMATTER = 
+            DateTimeFormatter.ofPattern("yyyy-MM-dd").withResolverStyle(ResolverStyle.SMART);
 
     /**
      * Validates email format.
@@ -30,15 +34,27 @@ public class InputValidator {
 
     /**
      * Validates date string format.
+     * Uses SMART parsing to reject obviously invalid dates (e.g., 2025-02-30).
+     * Also verifies that the parsed date matches the input to catch date adjustments.
      *
      * @param date date string to validate
      * @return true if valid yyyy-MM-dd format, false otherwise
      */
     public static boolean isValidDate(String date) {
+        // Check for null or empty string first
+        if (date == null || date.trim().isEmpty()) {
+            return false;
+        }
         try {
-            LocalDate.parse(date, DateUtils.FORMATTER);
-            return true;
+            String trimmedDate = date.trim();
+            LocalDate parsedDate = LocalDate.parse(trimmedDate, VALIDATION_FORMATTER);
+            // Verify the parsed date, when formatted back, matches the input
+            // This catches cases where invalid dates are adjusted (e.g., Feb 30 -> Mar 2)
+            String formattedBack = parsedDate.format(VALIDATION_FORMATTER);
+            return formattedBack.equals(trimmedDate);
         } catch (DateTimeParseException e) {
+            return false;
+        } catch (Exception e) {
             return false;
         }
     }

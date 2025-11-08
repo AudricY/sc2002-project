@@ -161,6 +161,7 @@ public class ApplicationManager {
 
     /**
      * Reviews and updates an application's status.
+     * Enforces slot availability when approving applications.
      *
      * @param application application to review
      * @param decision 1 for approve, 2 for reject
@@ -168,8 +169,38 @@ public class ApplicationManager {
     public void reviewApplication(Application application, int decision) {
         switch (decision) {
             case 1:
-                application.setStatus(ApplicationStatus.SUCCESSFUL);
-                updateApplication(application);
+                // Check slot availability before approving
+                InternshipManager internshipManager = InternshipManager.getInstance();
+                Internship internship = internshipManager.getInternshipById(application.getInternshipId());
+                
+                if (internship != null) {
+                    // Count confirmed slots (already accepted by students)
+                    int confirmedSlots = internship.getConfirmedSlots();
+                    
+                    // Count successful applications (approved but not yet accepted)
+                    // Exclude the current application to avoid double counting
+                    List<Application> successfulApps = getApplicationsByInternship(application.getInternshipId())
+                        .stream()
+                        .filter(a -> a.getStatus() == ApplicationStatus.SUCCESSFUL)
+                        .filter(a -> !a.getApplicationId().equals(application.getApplicationId()))
+                        .collect(Collectors.toList());
+                    int successfulCount = successfulApps.size();
+                    
+                    // Calculate available slots
+                    int totalSlots = internship.getTotalSlots();
+                    int availableSlots = totalSlots - confirmedSlots - successfulCount;
+                    
+                    // Only approve if slots are available
+                    if (availableSlots > 0) {
+                        application.setStatus(ApplicationStatus.SUCCESSFUL);
+                        updateApplication(application);
+                    }
+                    // If no slots available, application remains in current status (typically PENDING)
+                } else {
+                    // If internship not found, still allow approval (edge case)
+                    application.setStatus(ApplicationStatus.SUCCESSFUL);
+                    updateApplication(application);
+                }
                 break;
             case 2:
                 application.setStatus(ApplicationStatus.UNSUCCESSFUL);
