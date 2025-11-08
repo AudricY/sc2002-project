@@ -55,14 +55,9 @@
 
 ### Script
 
-"Good [morning/afternoon], we are Group [X] presenting our Internship Placement Management System.
+"Good [morning/afternoon], we are SCMB Group 1 presenting our Internship Placement Management System.
 
-Our team members are:
-- [Name 1] - [Student ID]
-- [Name 2] - [Student ID]
-- [Name 3] - [Student ID]
-- [Name 4] - [Student ID]
-- [Name 5] - [Student ID]
+
 
 Our system is a CLI-based application that manages internship placements between students, company representatives, and career center staff. It implements Entity-Control-Boundary architecture with file-based persistence using Java serialization. The system enforces business rules like application limits, eligibility restrictions, and approval workflows.
 
@@ -70,7 +65,7 @@ We'll demonstrate the complete system through three core workflows, followed by 
 
 ### Actions
 
-1. Display team slide (if using slides) OR have terminals ready
+1. Have terminals ready
 2. Have application ready to launch
 
 **Test Cases Covered:** TC-001 (System Initialization)
@@ -463,78 +458,4 @@ We're happy to answer any questions."
 | 3 | Workflow 2 (Application) | 3 min | Student apply, rep approve, accept placement |
 | 4 | Workflow 3 (Withdrawal) | 2 min | Withdrawal process |
 | 5 | Additional Features & Wrap-up | 4 min | Filters, reports, limits, summary |
-
-**Note:** Timing is flexible. Adjust based on actual demo pace. Aim to finish by 14 minutes to allow Q&A buffer.
-
----
-
-## Troubleshooting Guide
-
-### If Demo Fails Mid-Presentation
-
-1. **Application crashes:** Restart with `./run.sh` - data persists
-2. **Wrong test data:** Use alternative credentials (U2310002B, U2310003C, tan002, lee003)
-3. **Terminal issues:** Have backup terminal window ready
-4. **Timing runs over:** Skip "Additional Features Summary" (5.4) and mention in wrap-up instead
-
-### Common Issues and Fixes
-
-| Issue | Solution |
-|-------|----------|
-| "User not found" | Verify correct User ID format (U2310001A, not u2310001a) |
-| "Account pending approval" | Need staff to approve first |
-| "Already applied" | Use different student account |
-| Font too small | Use Cmd/Ctrl + Plus to increase |
-| Data state wrong | Delete `.dat` files and restart (ONLY if necessary) |
-
----
-
-## Post-Demo Checklist
-
-- [ ] Answer TA questions
-- [ ] Be prepared to explain code implementation if asked
-- [ ] Have UML diagrams ready for reference
-- [ ] Know where to find specific features in code
-- [ ] Understand design decisions and trade-offs
-
----
-
-## Test Case Coverage Summary
-
-This demo covers all 25 test cases documented in `Testing-Documentation.md`:
-
-| Category | Test Cases Covered |
-|----------|-------------------|
-| Authentication & Login | TC-001, TC-002 |
-| User Management | TC-003, TC-004, TC-021 |
-| Internship Management | TC-005, TC-006, TC-015, TC-017, TC-018 |
-| Application Workflow | TC-007, TC-008, TC-009, TC-010, TC-011, TC-012, TC-019 |
-| Withdrawal Process | TC-013, TC-014 |
-| Business Rules | TC-016, TC-020, TC-022, TC-023, TC-024, TC-025 |
-
-**Total:** 25/25 test cases demonstrated or referenced
-
----
-
-## Additional Resources
-
-- **Testing Documentation:** `docs/Testing-Documentation.md`
-- **Additional Features:** `docs/Additional-Features.md`
-- **UML Class Diagram:** `docs/UML-Class-Diagram.md`
-- **UML Sequence Diagram:** `docs/UML-Sequence-Diagram.md`
-- **Design Considerations:** `docs/Design-Considerations.md`
-- **Javadoc:** `apidocs/index.html`
-
----
-
-## Final Notes
-
-- **Practice the demo** at least once before presentation
-- **Time yourselves** to ensure staying within 15 minutes
-- **Coordinate handoffs** between presenters smoothly
-- **Show confidence** - you built this system, you know it well
-- **Be prepared** to deep-dive into any feature if TA asks
-- **Emphasize** OOP principles and design patterns when relevant
-
-**Good luck with your presentation!**
 
