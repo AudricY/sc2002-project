@@ -263,10 +263,12 @@ public class StudentMenu extends MenuInterface {
 
         List<Application> pendingApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.PENDING);
         List<Application> successfulApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.SUCCESSFUL);
+        List<Application> confirmedApps = applicationManager.getApplicationsByStudentandStatus(student.getUserId(), ApplicationStatus.CONFIRMED);
 
         List<Application> applications = new ArrayList<>();
         applications.addAll(pendingApps);
         applications.addAll(successfulApps);
+        applications.addAll(confirmedApps);
 
 
         if (applications.isEmpty()) {
