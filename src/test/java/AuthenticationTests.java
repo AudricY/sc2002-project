@@ -131,4 +131,31 @@ public class AuthenticationTests {
         assertTrue(currentUser instanceof CompanyRepresentative, "Current user should be CompanyRepresentative");
         assertEquals(ApprovalStatus.APPROVED, ((CompanyRepresentative) currentUser).getApprovalStatus());
     }
+
+    @Test
+    @DisplayName("TC-002a: Invalid User ID Login")
+    public void testInvalidUserIdLogin() {
+        // Test with non-existent user ID
+        boolean loginSuccess = authController.login("INVALID123", "password");
+        assertFalse(loginSuccess, "Login should fail with non-existent user ID");
+        assertNull(authController.getCurrentUser(), "Current user should remain null");
+        
+        // Test with malformed student ID
+        boolean malformedLogin = authController.login("U123", "password");
+        assertFalse(malformedLogin, "Login should fail with malformed user ID");
+    }
+
+    @Test
+    @DisplayName("TC-002b: Incorrect Password Login")
+    public void testIncorrectPasswordLogin() {
+        // Test with correct user ID but wrong password
+        boolean loginSuccess = authController.login("U2310001A", "wrongPassword123");
+        assertFalse(loginSuccess, "Login should fail with incorrect password");
+        assertNull(authController.getCurrentUser(), "Current user should remain null");
+        
+        // Verify correct password works
+        boolean correctLogin = authController.login("U2310001A", "password");
+        assertTrue(correctLogin, "Login should succeed with correct password");
+        assertNotNull(authController.getCurrentUser(), "Current user should be set");
+    }
 }

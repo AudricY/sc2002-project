@@ -7,6 +7,7 @@ import util.TestDataSetup;
 import util.TestHelpers;
 import util.TestStateManager;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,16 +72,17 @@ public class ApplicationWorkflowTests {
         assertFalse(visibleInternships.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
             "Year 2 student should NOT see INTERMEDIATE internship");
 
-        // U2310003C is Year 4, Computer Science - should see both
-        Student seniorStudent = (Student) userManager.getUserById("U2310003C");
-        assertEquals(4, seniorStudent.getYearOfStudy());
+        // U2310005E is Year 3, Computer Science - should see both (Year 3+ can see all levels)
+        Student seniorStudent = (Student) userManager.getUserById("U2310005E");
+        assertEquals(3, seniorStudent.getYearOfStudy());
+        assertEquals("Computer Science", seniorStudent.getMajor());
 
         List<Internship> seniorVisibleInternships = internshipManager.getVisibleInternshipsForStudent(seniorStudent);
 
         assertTrue(seniorVisibleInternships.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
-            "Year 4 student should see BASIC internship");
+            "Year 3 student should see BASIC internship");
         assertTrue(seniorVisibleInternships.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
-            "Year 4 student should see INTERMEDIATE internship");
+            "Year 3 student should see INTERMEDIATE internship");
 
         // Verify major filtering: Create internship for different major
         TestHelpers.createInternship(
@@ -327,5 +329,119 @@ public class ApplicationWorkflowTests {
         // Verify another student can still apply
         boolean otherStudentApplied = applicationManager.hasAppliedToInternship("U2310002B", "INT001");
         assertFalse(otherStudentApplied, "Other students should not be affected by duplicate check");
+    }
+
+    @Test
+    @DisplayName("TC-008: Student Views Application After Visibility Toggle Off")
+    public void testStudentViewsApplicationAfterVisibilityToggleOff() {
+        // Setup: Create internship and student applies
+        authController.registerCompanyRepresentative(
+            "Jane Doe", "jane.doe@techcorp.com", "password123",
+            "TechCorp", "Engineering", "Manager"
+        );
+        CompanyRepresentative rep = userManager.getPendingRepresentatives().get(0);
+        TestHelpers.approveRepresentative(rep.getUserId());
+        
+        TestHelpers.createInternship(
+            "INT001", "Software Developer Intern", "Description",
+            InternshipLevel.BASIC, "Computer Science", "TechCorp", rep.getUserId(), 5
+        );
+        TestHelpers.approveInternship("INT001");
+        
+        // Student applies
+        Application application = TestHelpers.createApplication("APP001", "U2310001A", "INT001");
+        assertNotNull(application, "Application should be created");
+        
+        Student student = (Student) userManager.getUserById("U2310001A");
+        
+        // Verify internship is visible before toggle
+        List<Internship> visibleBefore = internshipManager.getVisibleInternshipsForStudent(student);
+        assertTrue(visibleBefore.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
+            "Internship should be visible before toggle");
+        
+        // Toggle visibility OFF
+        Internship internship = internshipManager.getInternshipById("INT001");
+        internship.setVisible(false);
+        internshipManager.updateInternship(internship);
+        
+        // Verify internship is no longer visible in general list
+        List<Internship> visibleAfter = internshipManager.getVisibleInternshipsForStudent(student);
+        assertFalse(visibleAfter.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
+            "Internship should NOT be visible after toggle off");
+        
+        // Critical: Verify student can STILL access their application
+        Application studentApp = applicationManager.getApplicationById("APP001");
+        assertNotNull(studentApp, "Student should still be able to access their application");
+        assertEquals("U2310001A", studentApp.getStudentId());
+        assertEquals("INT001", studentApp.getInternshipId());
+        assertEquals(ApplicationStatus.PENDING, studentApp.getStatus());
+        
+        // Verify all student applications are accessible regardless of visibility
+        List<Application> studentApps = applicationManager.getApplicationsByStudent("U2310001A");
+        assertTrue(studentApps.stream().anyMatch(a -> a.getApplicationId().equals("APP001")),
+            "Application should remain in student's application list regardless of visibility");
+    }
+
+    @Test
+    @DisplayName("TC-011: Application After Closing Date")
+    public void testApplicationAfterClosingDate() {
+        // Setup: Create company representative
+        authController.registerCompanyRepresentative(
+            "Jane Doe", "jane.doe@techcorp.com", "password123",
+            "TechCorp", "Engineering", "Manager"
+        );
+        CompanyRepresentative rep = userManager.getPendingRepresentatives().get(0);
+        TestHelpers.approveRepresentative(rep.getUserId());
+        
+        // Create internship with PAST closing date
+        LocalDate pastClosingDate = LocalDate.now().minusDays(7);
+        LocalDate pastOpeningDate = LocalDate.now().minusDays(30);
+        
+        Internship internship = TestHelpers.createInternshipWithDates(
+            "INT001", "Software Developer Intern", "Description",
+            InternshipLevel.BASIC, "Computer Science", "TechCorp", 
+            rep.getUserId(), 5, pastOpeningDate, pastClosingDate
+        );
+        TestHelpers.approveInternship("INT001");
+        
+        // Verify internship exists but is past closing date
+        assertNotNull(internship);
+        assertTrue(LocalDate.now().isAfter(internship.getClosingDate()),
+            "Current date should be after closing date");
+        
+        // Attempt to apply after closing date
+        ApplicationManager appManager = ApplicationManager.getInstance();
+        boolean applicationSuccess = appManager.addApplication("APP001", "U2310001A", "INT001");
+        
+        assertFalse(applicationSuccess, 
+            "Application should be rejected for internship past closing date");
+        
+        // Verify application was NOT created
+        Application application = appManager.getApplicationById("APP001");
+        assertNull(application, "Application should not exist when closing date has passed");
+        
+        // Verify student's application count is still 0
+        List<Application> studentApps = appManager.getApplicationsByStudent("U2310001A");
+        assertEquals(0, studentApps.size(), 
+            "Student should have 0 applications after failed attempt");
+        
+        // Verify future closing date works
+        LocalDate futureClosingDate = LocalDate.now().plusDays(30);
+        LocalDate futureOpeningDate = LocalDate.now().minusDays(1);
+        
+        TestHelpers.createInternshipWithDates(
+            "INT002", "Data Analyst Intern", "Description",
+            InternshipLevel.BASIC, "Computer Science", "TechCorp", 
+            rep.getUserId(), 3, futureOpeningDate, futureClosingDate
+        );
+        TestHelpers.approveInternship("INT002");
+        
+        boolean validApplicationSuccess = appManager.addApplication("APP002", "U2310001A", "INT002");
+        assertTrue(validApplicationSuccess, 
+            "Application should succeed for internship with future closing date");
+        
+        Application validApplication = appManager.getApplicationById("APP002");
+        assertNotNull(validApplication, 
+            "Application should be created for internship with future closing date");
     }
 }

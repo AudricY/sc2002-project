@@ -84,6 +84,32 @@ public class TestHelpers {
     }
 
     /**
+     * Creates a new internship opportunity with custom opening and closing dates.
+     *
+     * @param internshipId Internship ID
+     * @param title Internship title
+     * @param description Internship description
+     * @param level Internship level
+     * @param preferredMajor Preferred major
+     * @param companyName Company name
+     * @param representativeId Representative ID
+     * @param totalSlots Number of slots
+     * @param openingDate Opening date for applications
+     * @param closingDate Closing date for applications
+     * @return The created internship
+     */
+    public static Internship createInternshipWithDates(String internshipId, String title, String description,
+                                                        InternshipLevel level, String preferredMajor,
+                                                        String companyName, String representativeId, 
+                                                        int totalSlots, LocalDate openingDate, 
+                                                        LocalDate closingDate) {
+        InternshipManager internshipManager = InternshipManager.getInstance();
+        internshipManager.addInternship(internshipId, title, description, level, preferredMajor,
+                openingDate, closingDate, companyName, representativeId, totalSlots);
+        return internshipManager.getInternshipById(internshipId);
+    }
+
+    /**
      * Approves a pending internship.
      *
      * @param internshipId The internship ID to approve
