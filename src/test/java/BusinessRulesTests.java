@@ -91,7 +91,7 @@ public class BusinessRulesTests {
         CompanyRepresentative rep = userManager.getPendingRepresentatives().get(0);
         TestHelpers.approveRepresentative(rep.getUserId());
 
-        // Create internships of different levels
+        // Create internships of different levels for Computer Science (for Year 2 student)
         TestHelpers.createInternship(
             "INT001", "Basic Internship", "For beginners",
             InternshipLevel.BASIC, "Computer Science", "TechCorp", rep.getUserId(), 3
@@ -109,55 +109,127 @@ public class BusinessRulesTests {
         TestHelpers.approveInternship("INT002");
         TestHelpers.approveInternship("INT003");
 
-        // Year 1 student - should only see BASIC
-        Student year1Student = (Student) userManager.getUserById("U2310004D"); // Year 1
+        // Year 1 student - should only see BASIC for matching major
+        // U2310004D is Information Engineering & Media, Year 1
+        Student year1Student = (Student) userManager.getUserById("U2310004D"); // Year 1, Information Engineering & Media
         assertEquals(1, year1Student.getYearOfStudy());
+        assertEquals("Information Engineering & Media", year1Student.getMajor());
+
+        // Create Information Engineering & Media internships for Year 1 student
+        TestHelpers.createInternship(
+            "INT010", "Basic IEM Internship", "For beginners",
+            InternshipLevel.BASIC, "Information Engineering & Media", "TechCorp", rep.getUserId(), 3
+        );
+        TestHelpers.createInternship(
+            "INT011", "Intermediate IEM Internship", "For experienced",
+            InternshipLevel.INTERMEDIATE, "Information Engineering & Media", "TechCorp", rep.getUserId(), 3
+        );
+        TestHelpers.approveInternship("INT010");
+        TestHelpers.approveInternship("INT011");
 
         List<Internship> year1Visible = internshipManager.getVisibleInternshipsForStudent(year1Student);
-        assertTrue(year1Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
-            "Year 1 student should see BASIC");
+        // Should NOT see Computer Science internships
+        assertFalse(year1Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
+            "Year 1 IEM student should NOT see Computer Science BASIC");
         assertFalse(year1Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
-            "Year 1 student should NOT see INTERMEDIATE");
-        assertFalse(year1Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT003")),
-            "Year 1 student should NOT see ADVANCED");
+            "Year 1 IEM student should NOT see Computer Science INTERMEDIATE");
+        // Should see BASIC for matching major
+        assertTrue(year1Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT010")),
+            "Year 1 student should see BASIC for matching major");
+        assertFalse(year1Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT011")),
+            "Year 1 student should NOT see INTERMEDIATE (year restriction)");
 
-        // Year 2 student - should only see BASIC
-        Student year2Student = (Student) userManager.getUserById("U2310001A"); // Year 2
+        // Year 2 student - should only see BASIC for matching major
+        // U2310001A is Computer Science, Year 2
+        Student year2Student = (Student) userManager.getUserById("U2310001A"); // Year 2, Computer Science
         assertEquals(2, year2Student.getYearOfStudy());
+        assertEquals("Computer Science", year2Student.getMajor());
 
         List<Internship> year2Visible = internshipManager.getVisibleInternshipsForStudent(year2Student);
         assertTrue(year2Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
-            "Year 2 student should see BASIC");
+            "Year 2 student should see BASIC for matching major");
         assertFalse(year2Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
-            "Year 2 student should NOT see INTERMEDIATE");
+            "Year 2 student should NOT see INTERMEDIATE (year restriction)");
         assertFalse(year2Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT003")),
-            "Year 2 student should NOT see ADVANCED");
+            "Year 2 student should NOT see ADVANCED (year restriction)");
 
-        // Year 3 student - should see all levels
-        Student year3Student = (Student) userManager.getUserById("U2310002B"); // Year 3
+        // Year 3 student - should see all levels for matching major
+        // U2310002B is Data Science & AI, Year 3 - needs Data Science & AI internships
+        Student year3Student = (Student) userManager.getUserById("U2310002B"); // Year 3, Data Science & AI
         assertEquals(3, year3Student.getYearOfStudy());
+        assertEquals("Data Science & AI", year3Student.getMajor());
+
+        // Create Data Science & AI internships for Year 3 student
+        TestHelpers.createInternship(
+            "INT004", "Basic DS Internship", "For beginners",
+            InternshipLevel.BASIC, "Data Science & AI", "TechCorp", rep.getUserId(), 3
+        );
+        TestHelpers.createInternship(
+            "INT005", "Intermediate DS Internship", "For experienced",
+            InternshipLevel.INTERMEDIATE, "Data Science & AI", "TechCorp", rep.getUserId(), 3
+        );
+        TestHelpers.createInternship(
+            "INT006", "Advanced DS Internship", "For experts",
+            InternshipLevel.ADVANCED, "Data Science & AI", "TechCorp", rep.getUserId(), 3
+        );
+        TestHelpers.approveInternship("INT004");
+        TestHelpers.approveInternship("INT005");
+        TestHelpers.approveInternship("INT006");
 
         List<Internship> year3Visible = internshipManager.getVisibleInternshipsForStudent(year3Student);
-        assertTrue(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
-            "Year 3 student should see BASIC");
-        assertTrue(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
-            "Year 3 student should see INTERMEDIATE");
-        assertTrue(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT003")),
-            "Year 3 student should see ADVANCED");
-        // Note: major mismatch might filter some, but eligibility by year should pass
-        // U2310002B is Data Science & AI, so won't see Computer Science internships
+        // Should NOT see Computer Science internships (INT001, INT002, INT003)
+        assertFalse(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
+            "Year 3 Data Science student should NOT see Computer Science BASIC");
+        assertFalse(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
+            "Year 3 Data Science student should NOT see Computer Science INTERMEDIATE");
+        assertFalse(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT003")),
+            "Year 3 Data Science student should NOT see Computer Science ADVANCED");
+        // Should see Data Science & AI internships (all levels)
+        assertTrue(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT004")),
+            "Year 3 student should see BASIC for matching major");
+        assertTrue(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT005")),
+            "Year 3 student should see INTERMEDIATE for matching major");
+        assertTrue(year3Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT006")),
+            "Year 3 student should see ADVANCED for matching major");
 
-        // Year 4 student - should see all levels
-        Student year4Student = (Student) userManager.getUserById("U2310003C"); // Year 4, Computer Science
+        // Year 4 student - should see all levels for matching major
+        // U2310003C is Computer Engineering, Year 4 - needs Computer Engineering internships
+        Student year4Student = (Student) userManager.getUserById("U2310003C"); // Year 4, Computer Engineering
         assertEquals(4, year4Student.getYearOfStudy());
+        assertEquals("Computer Engineering", year4Student.getMajor());
+
+        // Create Computer Engineering internships for Year 4 student
+        TestHelpers.createInternship(
+            "INT007", "Basic CE Internship", "For beginners",
+            InternshipLevel.BASIC, "Computer Engineering", "TechCorp", rep.getUserId(), 3
+        );
+        TestHelpers.createInternship(
+            "INT008", "Intermediate CE Internship", "For experienced",
+            InternshipLevel.INTERMEDIATE, "Computer Engineering", "TechCorp", rep.getUserId(), 3
+        );
+        TestHelpers.createInternship(
+            "INT009", "Advanced CE Internship", "For experts",
+            InternshipLevel.ADVANCED, "Computer Engineering", "TechCorp", rep.getUserId(), 3
+        );
+        TestHelpers.approveInternship("INT007");
+        TestHelpers.approveInternship("INT008");
+        TestHelpers.approveInternship("INT009");
 
         List<Internship> year4Visible = internshipManager.getVisibleInternshipsForStudent(year4Student);
-        assertTrue(year4Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
-            "Year 4 student should see BASIC");
-        assertTrue(year4Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
-            "Year 4 student should see INTERMEDIATE");
-        assertTrue(year4Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT003")),
-            "Year 4 student should see ADVANCED");
+        // Should NOT see Computer Science internships (INT001, INT002, INT003)
+        assertFalse(year4Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
+            "Year 4 Computer Engineering student should NOT see Computer Science BASIC");
+        assertFalse(year4Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
+            "Year 4 Computer Engineering student should NOT see Computer Science INTERMEDIATE");
+        assertFalse(year4Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT003")),
+            "Year 4 Computer Engineering student should NOT see Computer Science ADVANCED");
+        // Should see Computer Engineering internships (all levels)
+        assertTrue(year4Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT007")),
+            "Year 4 student should see BASIC for matching major");
+        assertTrue(year4Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT008")),
+            "Year 4 student should see INTERMEDIATE for matching major");
+        assertTrue(year4Visible.stream().anyMatch(i -> i.getInternshipId().equals("INT009")),
+            "Year 4 student should see ADVANCED for matching major");
     }
 
     @Test

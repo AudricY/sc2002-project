@@ -117,7 +117,7 @@ public class InternshipManager {
     }
 
     /**
-     * Checks if a student is eligible for an internship based on year and level.
+     * Checks if a student is eligible for an internship based on year, level, and major.
      *
      * @param student student to check
      * @param internship internship to check eligibility for
@@ -127,7 +127,13 @@ public class InternshipManager {
         int year = student.getYearOfStudy();
         InternshipLevel level = internship.getLevel();
 
+        // Year 1-2 students can only see BASIC level
         if (year <= 2 && level != InternshipLevel.BASIC) {
+            return false;
+        }
+
+        // Students can only see internships matching their major
+        if (!student.getMajor().equalsIgnoreCase(internship.getPreferredMajor())) {
             return false;
         }
 

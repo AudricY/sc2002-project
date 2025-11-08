@@ -46,14 +46,14 @@ public class ApplicationWorkflowTests {
         TestHelpers.approveRepresentative(rep.getUserId());
 
         // Create BASIC internship for Computer Science
-        Internship basicInternship = TestHelpers.createInternship(
+        TestHelpers.createInternship(
             "INT001", "Basic Internship", "For beginners",
             InternshipLevel.BASIC, "Computer Science", "TechCorp", rep.getUserId(), 3
         );
         TestHelpers.approveInternship("INT001");
 
         // Create INTERMEDIATE internship for Computer Science
-        Internship intermediateInternship = TestHelpers.createInternship(
+        TestHelpers.createInternship(
             "INT002", "Intermediate Internship", "For experienced students",
             InternshipLevel.INTERMEDIATE, "Computer Science", "TechCorp", rep.getUserId(), 3
         );
@@ -81,6 +81,27 @@ public class ApplicationWorkflowTests {
             "Year 4 student should see BASIC internship");
         assertTrue(seniorVisibleInternships.stream().anyMatch(i -> i.getInternshipId().equals("INT002")),
             "Year 4 student should see INTERMEDIATE internship");
+
+        // Verify major filtering: Create internship for different major
+        TestHelpers.createInternship(
+            "INT003", "Data Science Internship", "For Data Science students",
+            InternshipLevel.BASIC, "Data Science & AI", "TechCorp", rep.getUserId(), 3
+        );
+        TestHelpers.approveInternship("INT003");
+
+        // Computer Science student should NOT see Data Science internship
+        List<Internship> csStudentVisible = internshipManager.getVisibleInternshipsForStudent(student);
+        assertFalse(csStudentVisible.stream().anyMatch(i -> i.getInternshipId().equals("INT003")),
+            "Computer Science student should NOT see Data Science & AI internship");
+
+        // Data Science student should see Data Science internship
+        Student dsStudent = (Student) userManager.getUserById("U2310002B"); // Data Science & AI, Year 3
+        assertEquals("Data Science & AI", dsStudent.getMajor());
+        List<Internship> dsStudentVisible = internshipManager.getVisibleInternshipsForStudent(dsStudent);
+        assertTrue(dsStudentVisible.stream().anyMatch(i -> i.getInternshipId().equals("INT003")),
+            "Data Science student should see Data Science & AI internship");
+        assertFalse(dsStudentVisible.stream().anyMatch(i -> i.getInternshipId().equals("INT001")),
+            "Data Science student should NOT see Computer Science internship");
     }
 
     @Test

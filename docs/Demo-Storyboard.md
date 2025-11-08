@@ -189,9 +189,10 @@ Demonstrate student viewing internships, applying, company rep reviewing and app
 **Expected Result:** Only approved, visible, BASIC-level internships displayed for Computer Science major.
 
 **Presenter Notes:**
-- Emphasize automatic eligibility filtering
+- Emphasize automatic eligibility filtering based on BOTH year of study AND major
 - Year 1-2 students restricted to BASIC level
-- Only relevant majors shown
+- Hard filter: Students automatically see ONLY internships matching their major
+- Students cannot see internships for other majors, regardless of year/level eligibility
 
 #### 3.2: Student Applies for Internship (30 sec)
 
@@ -334,11 +335,11 @@ Demonstrate student withdrawal request and staff approval process, showing slot 
 **Note:** System is pre-seeded with 8 diverse internships (3 BASIC, 3 INTERMEDIATE, 2 ADVANCED) across various majors and dates to demonstrate filtering.
 
 **Actions:**
-1. Login as `U2310005E` (Year 3 student - can see all levels)
+1. Login as `U2310005E` (Year 3, Computer Science - can see CS internships)
 2. Select option **1** (View Available Internships)
-   - Note: You should see 8+ internships available for filtering
+   - Note: You should see internships matching Computer Science major
 3. Select option **8** (Configure Filter Settings)
-4. Set filters:
+4. Set filters and sorting criteria:
    - Filter by Level: `1` (BASIC)
    - Sort by: `3` (Closing Date)
 5. View internships - now filtered and sorted
@@ -350,9 +351,11 @@ Demonstrate student withdrawal request and staff approval process, showing slot 
 **Expected Result:** User-specific filter settings saved and restored across sessions.
 
 **Presenter Notes:**
+- Students automatically see ONLY internships matching their major (hard filter - cannot be disabled)
+- Major filtering is automatic and mandatory based on student profile
+- Level filter allows further refinement within matching majors (Year 3+ students filtering BASIC/INTERMEDIATE/ADVANCED)
+- Sort criteria options: Alphabetical (default), Opening Date, Closing Date, Level
 - Highlight persistence across logout/login
-- Default is alphabetical sort
-- Enhances user experience by remembering preferences
 - User-specific filter settings stored in `filters.dat`
 
 **Test Cases Covered:** TC-016
