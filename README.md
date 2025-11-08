@@ -84,6 +84,18 @@ java -cp bin com.internship.InternshipPlacementSystem
 3. Default password for preloaded users: `password`
 4. Company representatives must register through the system
 
+### Demo Data (Optional)
+
+For demonstration purposes, you can seed sample internships and a pre-approved company representative:
+
+```bash
+mvn exec:java -Dexec.mainClass="util.DemoDataSeeder"
+```
+
+This creates:
+- A pre-approved demo company rep (`demo.rep@techcorp.com`, password: `password`)
+- 8 diverse internships (3 BASIC, 3 INTERMEDIATE, 2 ADVANCED) with various majors and dates
+
 ## Sample Login Credentials
 
 ### Students

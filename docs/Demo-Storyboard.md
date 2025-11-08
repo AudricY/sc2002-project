@@ -10,6 +10,7 @@
 
 - [ ] Compile the application: `./compile.sh`
 - [ ] Ensure data files are ready in `data/` directory
+- [ ] Verify pre-seeded internships exist (8 internships from demo.rep@techcorp.com)
 - [ ] Test run the application once to verify working state
 - [ ] Close unnecessary applications and terminal windows
 - [ ] Increase terminal font size for visibility (minimum 16pt)
@@ -30,6 +31,7 @@
 | Career Center Staff | sng001 | password | Dr. Sng Hui Lin - Main staff account |
 | Career Center Staff | tan002 | password | Mr. Tan Boon Kiat - Alternative staff |
 | Career Center Staff | lee003 | password | Ms. Lee Mei Ling - Alternative staff |
+| Company Rep (Demo) | demo.rep@techcorp.com | password | Pre-approved, owns seeded internships |
 | Company Rep | (register new) | password123 | Will register during demo |
 
 ---
@@ -42,7 +44,7 @@
 | Workflow 1: Rep Registration & Internship Creation | 3 min | Company rep flow |
 | Workflow 2: Student Application & Placement | 3 min | Student application lifecycle |
 | Workflow 3: Withdrawal Process | 2 min | Withdrawal request handling |
-| Additional Features Demo | 5 min | Filter settings, reports, business rules |
+| Additional Features Demo | 3 min | Filter settings, reports, business rules |
 | Wrap-up | 1 min | Additional features summary, Q&A |
 
 ---
@@ -82,6 +84,8 @@ We'll demonstrate the complete system through three core workflows, followed by 
 ### Objective
 
 Demonstrate company representative registration, staff approval process, internship creation, and staff approval of internships.
+
+**Note:** A demo company rep (`demo.rep@techcorp.com`) already exists with pre-seeded internships for Section 5 demos. This section demonstrates creating an additional representative.
 
 ### Steps
 
@@ -317,19 +321,20 @@ Demonstrate student withdrawal request and staff approval process, showing slot 
 
 ---
 
-## Section 5: Additional Features Demonstration (5 minutes)
+## Section 5: Additional Features Demonstration (3 minutes)
 
-**Presenters 4 & 5** (split this section)
+**Presenter 5**
 
-### 5.1: Student Features (1.5 minutes)
-
-**Presenter 4**
+### 5.1: Filter Settings Persistence (1 minute)
 
 #### Filter Settings Persistence
+
+**Note:** System is pre-seeded with 8 diverse internships (3 BASIC, 3 INTERMEDIATE, 2 ADVANCED) across various majors and dates to demonstrate filtering.
 
 **Actions:**
 1. Login as `U2310005E` (Year 3 student - can see all levels)
 2. Select option **1** (View Available Internships)
+   - Note: You should see 8+ internships available for filtering
 3. Select option **8** (Configure Filter Settings)
 4. Set filters:
    - Filter by Level: `1` (BASIC)
@@ -346,138 +351,59 @@ Demonstrate student withdrawal request and staff approval process, showing slot 
 - Highlight persistence across logout/login
 - Default is alphabetical sort
 - Enhances user experience by remembering preferences
+- User-specific filter settings stored in `filters.dat`
 
-#### Application Limit Enforcement
+**Test Cases Covered:** TC-016
 
-**Actions:**
-1. Still logged in as U2310005E
-2. Apply for 3 different internships (if available)
-3. Attempt to apply for a 4th internship
-4. Show error: "You already have 3 pending applications"
-
-**Expected Result:** Fourth application blocked with clear error message.
-
-**Test Cases Covered:** TC-009, TC-016
-
-### 5.2: Company Representative Features (1.5 minutes)
-
-**Presenter 4**
-
-#### Visibility Toggle
-
-**Actions:**
-1. Login as `sarah.johnson@techcorp.com`
-2. Select option **2** (View My Internship Opportunities)
-3. Select option **3** (Toggle Internship Visibility)
-4. Enter Internship ID: `INT001`
-5. Toggle to HIDDEN
-6. Logout
-7. Login as a student (`U2310002B`)
-8. View Available Internships - INT001 no longer appears
-9. Logout
-10. Login as representative again
-11. View My Internships - INT001 still visible to representative
-
-**Expected Result:** 
-- Internship hidden from students
-- Representative retains access
-- Existing applications remain active
-
-**Presenter Notes:**
-- Allows temporary hiding without deletion
-- Representatives always see their own internships
-- Useful for draft work or temporarily closing applications
-
-#### Edit Restriction on Approved Internships
-
-**Actions:**
-1. Still logged in as representative
-2. Select option **5** (Edit Internship Opportunity)
-3. Enter Internship ID: `INT001` (approved internship)
-4. Show error: "Cannot edit approved or filled internships"
-5. Note restriction enforced
-
-**Expected Result:** Edit blocked for approved internships.
-
-**Presenter Notes:**
-- Maintains integrity of approved postings
-- Prevents bait-and-switch scenarios
-- Only PENDING and REJECTED internships can be edited
-
-#### Internship Limit
-
-**Actions:**
-1. Select option **2** (View My Internship Opportunities)
-2. Note current count (e.g., "You have created 1 of 5 internships")
-3. Mention that attempting to create a 6th would be blocked
-4. Logout
-
-**Test Cases Covered:** TC-015, TC-017, TC-018
-
-### 5.3: Career Center Staff Features (2 minutes)
-
-**Presenter 5**
-
-#### Comprehensive Reporting System
+### 5.2: Comprehensive Reporting (45 seconds)
 
 **Actions:**
 1. Login as `sng001`
-2. Select option **6** (Generate Reports)
-3. Select option **1** (All Internships Report)
-4. Show report grouped by status (Pending, Approved, Filled, Rejected)
-5. Note counts and details for each
+2. Select option **4** (Generate Reports)
+3. Select option **3** (Student Applications Summary)
+4. Show all students with application counts
+5. Note breakdown: Pending, Successful, Unsuccessful, Confirmed Placement
 6. Press Enter to return
-7. Select option **2** (Filtered Internships Report)
-8. Filter by: `1` (Status)
-9. Enter status: `2` (APPROVED)
-10. Show filtered results
-11. Press Enter
-12. Select option **3** (Student Applications Summary)
-13. Show all students with application counts
-14. Note breakdown: Pending, Successful, Unsuccessful, Confirmed Placement
-15. Logout
+7. Logout
 
-**Expected Result:** Multiple report types with accurate aggregations and filtering.
+**Expected Result:** Report shows accurate aggregations of student application data.
 
 **Presenter Notes:**
 - Reports support data-driven decisions
-- Multiple filtering options (status, level, major)
-- Real-time statistics
-- Demonstrates data aggregation capabilities
-
-#### User Management Overview
-
-**Actions:**
-1. Still logged in as sng001
-2. Select option **5** (View All Students)
-3. Show student list with profiles (Year, Major)
-4. Return to menu
-5. Select option **1** (Review Company Representative Registrations)
-6. Show both pending and approved representatives
-7. Demonstrate staff oversight capabilities
-
-**Expected Result:** Complete visibility of all system users and their status.
+- Other report types available (All Internships, Filtered Internships)
+- Real-time statistics demonstrate data aggregation capabilities
 
 **Test Cases Covered:** TC-022, TC-023, TC-024
 
-### 5.4: Business Rules & Data Integrity (Quick Highlights)
+### 5.3: Application Limit Enforcement (30 seconds)
 
-**Presenter 5**
+**Actions:**
+1. Login as `U2310005E` (or use pre-seeded student with 3 applications)
+2. Attempt to apply for a 4th internship
+3. Show error: "You already have 3 pending applications"
+4. Logout
 
-Quickly mention (without full demo):
+**Expected Result:** Fourth application blocked with clear error message.
 
-1. **Duplicate Prevention:** System prevents applying twice to same internship
-2. **Automatic Status Management:** Internship auto-changes to FILLED when all slots confirmed
-3. **Cascade Withdrawals:** Accepting one placement automatically withdraws others
-4. **Eligibility Enforcement:** Year 1-2 cannot even view INTERMEDIATE/ADVANCED internships
-5. **Data Persistence:** All changes saved to `.dat` files, survive system restart
+**Test Cases Covered:** TC-009
 
-**Presenter Notes:**
-- These features maintain data integrity
-- Reduce manual oversight burden
-- Enforce business rules automatically
+### 5.4: Additional Features Summary (45 seconds)
 
-**Test Cases Covered:** TC-012, TC-019, TC-020, TC-025
+**Verbal script** - No new demos, reference earlier workflows:
+
+"We've also implemented several business rules you saw in action:
+
+**From Workflow 1:** Representatives limited to 5 internships, edit restrictions on approved internships prevent bait-and-switch.
+
+**From Workflow 2:** Duplicate application prevention, eligibility-based automatic filtering (Year 1-2 see BASIC only), accepting one placement auto-withdraws others.
+
+**From Workflow 3:** Automatic status management - internships become FILLED when slots full, revert to APPROVED after withdrawals.
+
+**Rep Features:** Visibility toggle allows hiding internships without deletion - representatives always see their own postings.
+
+All changes persist to `.dat` files and survive system restarts."
+
+**Test Cases Covered:** TC-012, TC-015, TC-017, TC-018, TC-019, TC-020, TC-025
 
 ---
 
@@ -528,8 +454,8 @@ We're happy to answer any questions."
 | 1 | Introduction | 1 min | Team intro, system overview |
 | 2 | Workflow 1 (Rep & Internship) | 3 min | Registration, approvals, creation flow |
 | 3 | Workflow 2 (Application) | 3 min | Student apply, rep approve, accept placement |
-| 4 | Workflow 3 & Student Features | 2.5 min | Withdrawal process, filters, limits |
-| 5 | Staff Features & Wrap-up | 5.5 min | Reports, business rules, summary |
+| 4 | Workflow 3 (Withdrawal) | 2 min | Withdrawal process |
+| 5 | Additional Features & Wrap-up | 4 min | Filters, reports, limits, summary |
 
 **Note:** Timing is flexible. Adjust based on actual demo pace. Aim to finish by 14 minutes to allow Q&A buffer.
 
@@ -542,7 +468,7 @@ We're happy to answer any questions."
 1. **Application crashes:** Restart with `./run.sh` - data persists
 2. **Wrong test data:** Use alternative credentials (U2310002B, U2310003C, tan002, lee003)
 3. **Terminal issues:** Have backup terminal window ready
-4. **Timing runs over:** Skip "Business Rules Quick Highlights" (5.4) and mention in wrap-up instead
+4. **Timing runs over:** Skip "Additional Features Summary" (5.4) and mention in wrap-up instead
 
 ### Common Issues and Fixes
 
