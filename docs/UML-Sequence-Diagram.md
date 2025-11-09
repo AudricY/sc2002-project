@@ -19,19 +19,38 @@ sequenceDiagram
     participant AppMgr as ApplicationManager
     participant Application
     participant Student
+    participant StudentMenu
 
     %% Login Flow
     rect rgb(240, 248, 255)
         Note over CR,UserMgr: 1. Authentication Flow
-        CR->>+LoginMenu: Enter credentials
+        CR->>LoginMenu: getStringInput("User ID: ")
+        LoginMenu-->>CR: userId
+        CR->>LoginMenu: getStringInput("Password: ")
+        LoginMenu-->>CR: password
+        CR->>+LoginMenu: handleLogin()
         LoginMenu->>+AuthCtrl: login(userId, password)
         AuthCtrl->>+UserMgr: authenticateUser(userId, password)
-        UserMgr->>UserMgr: getUserById()
-        UserMgr->>UserMgr: verify password
-        UserMgr->>UserMgr: check approval status
-        UserMgr-->>-AuthCtrl: User (CompanyRep)
-        AuthCtrl-->>-LoginMenu: Login successful
-        LoginMenu-->>-CR: Display success
+        Note over UserMgr: Single stream filter:<br/>userId + password match
+        UserMgr-->>-AuthCtrl: User (or null)
+        
+        alt user == null
+            AuthCtrl-->>LoginMenu: false (login failed)
+        else user instanceof CompanyRepresentative
+            AuthCtrl->>AuthCtrl: check rep.isApproved()
+            alt not approved
+                AuthCtrl-->>LoginMenu: false (not approved)
+            else approved
+                AuthCtrl->>AuthCtrl: setCurrentUser(user)
+                AuthCtrl-->>LoginMenu: true (success)
+            end
+        else other user types
+            AuthCtrl->>AuthCtrl: setCurrentUser(user)
+            AuthCtrl-->>LoginMenu: true (success)
+        end
+        
+        AuthCtrl-->>-LoginMenu: return
+        LoginMenu-->>-CR: Display result
     end
 
     %% Menu Display
@@ -186,22 +205,38 @@ sequenceDiagram
         Note over CR,Application: 7. Student Application (External)
         Note over AppMgr,Application: Student applies via StudentMenu
         
-        AppMgr->>+IntMgr: getInternshipById(internshipId)
-        IntMgr-->>-AppMgr: Internship
-        AppMgr->>AppMgr: check closing date vs today
-        
-        alt after closing date
-            AppMgr-->>AppMgr: return false (application rejected)
-        else before/on closing date
-            AppMgr->>+IdGen: generateApplicationId()
-            IdGen-->>-AppMgr: application ID
-            AppMgr->>+Application: new Application(appId, studentId, internshipId)
-            Application->>Application: set status = PENDING
-            Application->>Application: set applicationDate = now()
-            Application-->>-AppMgr: Application object
-            AppMgr->>AppMgr: add to list
-            AppMgr->>+FileMgr: saveToFile(applications)
-            FileMgr-->>-AppMgr: saved
+        StudentMenu->>StudentMenu: check student.hasConfirmedPlacement()
+        alt has confirmed placement
+            StudentMenu-->>StudentMenu: reject (already placed)
+        else no confirmed placement
+            StudentMenu->>+AppMgr: countPendingApplicationsByStudent(studentId)
+            AppMgr-->>-StudentMenu: count
+            
+            alt count >= 3
+                StudentMenu-->>StudentMenu: reject (max pending reached)
+            else count < 3
+                StudentMenu->>+IdGen: generateApplicationId()
+                IdGen-->>-StudentMenu: application ID
+                
+                StudentMenu->>+AppMgr: addApplication(appId, studentId, internshipId)
+                AppMgr->>+IntMgr: getInternshipById(internshipId)
+                IntMgr-->>-AppMgr: Internship
+                AppMgr->>AppMgr: check closing date vs today
+                
+                alt after closing date
+                    AppMgr-->>StudentMenu: false (past deadline)
+                else before/on closing date
+                    AppMgr->>+Application: new Application(appId, studentId, internshipId)
+                    Application->>Application: set status = PENDING
+                    Application->>Application: set applicationDate = now()
+                    Application-->>-AppMgr: Application object
+                    AppMgr->>AppMgr: add to list
+                    AppMgr->>+FileMgr: saveToFile(applications)
+                    FileMgr-->>-AppMgr: saved
+                    AppMgr-->>StudentMenu: true (success)
+                end
+                AppMgr-->>-StudentMenu: return
+            end
         end
     end
 
@@ -260,35 +295,47 @@ sequenceDiagram
         CRMenu->>+AppMgr: reviewApplication(application, decision)
         
         alt decision = 1 (approve)
-            AppMgr->>+Application: setStatus(SUCCESSFUL)
-            Application-->>-AppMgr: status updated
+            AppMgr->>+IntMgr: getInternshipById(internshipId)
+            IntMgr-->>-AppMgr: Internship
+            AppMgr->>AppMgr: calculate available slots
+            Note over AppMgr: availableSlots = totalSlots<br/>- confirmedSlots<br/>- successfulCount
+            
+            alt availableSlots > 0
+                AppMgr->>+Application: setStatus(SUCCESSFUL)
+                Application-->>-AppMgr: status updated
+                AppMgr->>AppMgr: update in list
+                AppMgr->>+FileMgr: saveToFile(applications)
+                FileMgr-->>-AppMgr: saved
+            else no slots available
+                Note over AppMgr: Application remains PENDING
+            end
         else decision = 2 (reject)
             AppMgr->>+Application: setStatus(UNSUCCESSFUL)
             Application-->>-AppMgr: status updated
+            AppMgr->>AppMgr: update in list
+            AppMgr->>+FileMgr: saveToFile(applications)
+            FileMgr-->>-AppMgr: saved
         end
         
-        AppMgr->>AppMgr: update in list
-        AppMgr->>+FileMgr: saveToFile(applications)
-        FileMgr-->>-AppMgr: saved
         AppMgr-->>-CRMenu: success
         CRMenu-->>-CR: Application reviewed
     end
 
     %% Student Accepts (External Flow)
     rect rgb(250, 250, 250)
-        Note over AppMgr,FileMgr: 10. Student Accepts Placement (External)
-        Note over AppMgr: Student accepts via StudentMenu
+        Note over StudentMenu,FileMgr: 10. Student Accepts Placement (External)
+        Note over StudentMenu: Student accepts via StudentMenu
         
-        AppMgr->>+AppMgr: handleApplicationAcceptance(student, application)
+        StudentMenu->>+AppMgr: handleApplicationAcceptance(student, application)
         
         AppMgr->>+Application: setStatus(CONFIRMED)
         Application-->>-AppMgr: status updated
         AppMgr->>+FileMgr: saveToFile(applications)
         FileMgr-->>-AppMgr: saved
         
+        AppMgr->>+Student: setConfirmedPlacementId(internshipId)
+        Student-->>-AppMgr: placement set
         AppMgr->>+UserMgr: updateUser(student)
-        UserMgr->>+Student: setConfirmedPlacementId(internshipId)
-        Student-->>-UserMgr: placement set
         UserMgr->>+FileMgr: saveToFile(users)
         FileMgr-->>-UserMgr: saved
         UserMgr-->>-AppMgr: student updated
@@ -318,7 +365,7 @@ sequenceDiagram
             FileMgr-->>-AppMgr: saved
         end
         
-        AppMgr-->>-AppMgr: acceptance complete
+        AppMgr-->>-StudentMenu: acceptance complete
         
         Note over AppMgr: All other successful applications<br/>automatically rejected
     end
@@ -337,9 +384,11 @@ sequenceDiagram
 ## Key Interaction Points
 
 1. **Authentication Flow**:
-   - Login validates credentials through UserManager
-   - UserManager authenticates and checks approval status for company representatives
-   - Returns User object to AuthenticationController which stores as currentUser
+   - User provides credentials via LoginMenu.getStringInput() method calls
+   - LoginMenu calls AuthenticationController.login()
+   - AuthenticationController calls UserManager.authenticateUser() which performs a single stream filter for userId + password match
+   - AuthenticationController checks approval status for company representatives (not UserManager)
+   - Returns boolean to LoginMenu indicating success/failure
 
 2. **Internship Creation**:
    - Checks 5 internship limit per representative via InternshipManager
@@ -374,6 +423,14 @@ sequenceDiagram
    - Manager updates internship via updateInternship() and persists via FileManager
    - Ensures edited internships require re-approval from staff
 
+5a. **Student Application** (Boundary-Layer Guards):
+   - StudentMenu checks student.hasConfirmedPlacement() before allowing application
+   - StudentMenu checks pending application count (max 3) via ApplicationManager
+   - **StudentMenu generates application ID** via IdGenerator (not ApplicationManager)
+   - StudentMenu calls ApplicationManager.addApplication() with pre-generated ID
+   - ApplicationManager validates closing date before creating Application entity
+   - Returns boolean to StudentMenu indicating success/failure
+
 6. **Application Review**:
    - Menu retrieves filter settings from FilterManager for initial listing
    - Gets internships via InternshipManager and applies filters
@@ -381,12 +438,14 @@ sequenceDiagram
    - Menu calls ApplicationManager.getApplicationsByInternshipandStatus()
    - Queries UserManager for student details in display loop
    - **Menu calls ApplicationManager.reviewApplication()** (not Application.setStatus() directly)
+   - Manager checks slot availability before approving (availableSlots = totalSlots - confirmedSlots - successfulCount)
+   - Only approves if slots available, otherwise application remains PENDING
    - Manager updates status to SUCCESSFUL/UNSUCCESSFUL and persists
 
 7. **Student Accepts Placement** (Complex Multi-Manager Flow):
    - Student calls ApplicationManager.handleApplicationAcceptance()
    - Sets Application status to CONFIRMED
-   - Updates Student's confirmedPlacementId via UserManager
+   - **ApplicationManager directly mutates Student.setConfirmedPlacementId()** before calling UserManager.updateUser()
    - Retrieves Internship via InternshipManager
    - Calls Internship.incrementConfirmedSlots() (auto-sets FILLED if full)
    - Updates Internship via InternshipManager
