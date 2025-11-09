@@ -238,6 +238,8 @@ public class InternshipManager {
             default:
                 break;
         }
+        // Reset to pending to account for rejected
+        internship.setStatus(InternshipStatus.PENDING);
         updateInternship(internship);
     }
 
