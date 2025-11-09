@@ -10,6 +10,7 @@ sequenceDiagram
     participant UserMgr as UserManager
     participant CRMenu as CompanyRepresentativeMenu
     participant IntMgr as InternshipManager
+    participant FilterMgr as FilterManager
     participant Validator as InputValidator
     participant IdGen as IdGenerator
     participant Internship
@@ -108,8 +109,13 @@ sequenceDiagram
     rect rgb(255, 240, 245)
         Note over CR,FileMgr: 6. Toggle Visibility
         CR->>+CRMenu: Select "Toggle Visibility"
+        CRMenu->>+FilterMgr: getFilterSettings(repId)
+        FilterMgr-->>-CRMenu: FilterSettings
         CRMenu->>+IntMgr: getInternshipsByRepresentative(repId)
-        IntMgr-->>-CRMenu: internship list
+        IntMgr->>IntMgr: filter by representativeId
+        IntMgr-->>-CRMenu: List<Internship>
+        CRMenu->>+IntMgr: filterInternships(internships, settings)
+        IntMgr-->>-CRMenu: filtered internships
         CRMenu-->>CR: Show internships
 
         CR->>CRMenu: Select internship to toggle
@@ -120,6 +126,59 @@ sequenceDiagram
         FileMgr-->>-IntMgr: saved
         IntMgr-->>-CRMenu: success
         CRMenu-->>-CR: Visibility toggled
+    end
+
+    %% Edit Internship Details
+    rect rgb(255, 250, 245)
+        Note over CR,FileMgr: 6a. Edit Internship Details
+        CR->>+CRMenu: Select "Edit Internship"
+        CRMenu->>+FilterMgr: getFilterSettings(repId)
+        FilterMgr-->>-CRMenu: FilterSettings
+        CRMenu->>+IntMgr: getInternshipsByRepresentative(repId)
+        IntMgr->>IntMgr: filter by representativeId
+        IntMgr-->>-CRMenu: List<Internship>
+        CRMenu->>+IntMgr: filterInternships(internships, settings)
+        IntMgr-->>-CRMenu: filtered internships
+        CRMenu-->>CR: Show filtered internship list
+
+        CR->>CRMenu: Select internship to edit
+        CRMenu->>Internship: getStatus()
+        Internship-->>CRMenu: status
+
+        alt status == APPROVED || status == FILLED
+            CRMenu-->>CR: Error: Cannot edit approved or filled internships
+        else status != APPROVED && status != FILLED
+            CRMenu-->>CR: Show field options (Title, Description, Preferred Major)
+            CR->>CRMenu: Select field & enter new value
+            CRMenu->>CRMenu: validate input (non-empty)
+
+            alt invalid input
+                CRMenu-->>CR: Error: Invalid input
+            else valid input
+                CRMenu->>+IntMgr: editInternshipField(internship, fieldChoice, newValue)
+                
+                alt fieldChoice == 1 (Title)
+                    IntMgr->>+Internship: setTitle(newValue)
+                    Internship-->>-IntMgr: title updated
+                else fieldChoice == 2 (Description)
+                    IntMgr->>+Internship: setDescription(newValue)
+                    Internship-->>-IntMgr: description updated
+                else fieldChoice == 3 (Preferred Major)
+                    IntMgr->>+Internship: setPreferredMajor(newValue)
+                    Internship-->>-IntMgr: preferredMajor updated
+                end
+
+                IntMgr->>+Internship: setStatus(PENDING)
+                Internship-->>-IntMgr: status reset to PENDING
+                IntMgr->>IntMgr: updateInternship(internship)
+                IntMgr->>IntMgr: update in list
+                IntMgr->>+FileMgr: saveToFile(internships)
+                FileMgr->>FileMgr: serialize to file
+                FileMgr-->>-IntMgr: saved
+                IntMgr-->>-CRMenu: success
+                CRMenu-->>-CR: Internship updated successfully
+            end
+        end
     end
 
     %% Student Applies (External Flow)
@@ -150,8 +209,13 @@ sequenceDiagram
     rect rgb(240, 255, 255)
         Note over CR,UserMgr: 8. View Applications
         CR->>+CRMenu: Select "View Applications"
+        CRMenu->>+FilterMgr: getFilterSettings(repId)
+        FilterMgr-->>-CRMenu: FilterSettings
         CRMenu->>+IntMgr: getInternshipsByRepresentative(repId)
-        IntMgr-->>-CRMenu: internship list
+        IntMgr->>IntMgr: filter by representativeId
+        IntMgr-->>-CRMenu: List<Internship>
+        CRMenu->>+IntMgr: filterInternships(internships, settings)
+        IntMgr-->>-CRMenu: filtered internships
         CRMenu-->>CR: Show internships
 
         CR->>CRMenu: Select internship
@@ -171,8 +235,13 @@ sequenceDiagram
     rect rgb(255, 248, 240)
         Note over CR,FileMgr: 9. Review & Approve Application
         CR->>+CRMenu: Select "Review Application"
+        CRMenu->>+FilterMgr: getFilterSettings(repId)
+        FilterMgr-->>-CRMenu: FilterSettings
         CRMenu->>+IntMgr: getInternshipsByRepresentative(repId)
-        IntMgr-->>-CRMenu: internship list
+        IntMgr->>IntMgr: filter by representativeId
+        IntMgr-->>-CRMenu: List<Internship>
+        CRMenu->>+IntMgr: filterInternships(internships, settings)
+        IntMgr-->>-CRMenu: filtered internships
         CRMenu-->>CR: Show internships
         
         CR->>CRMenu: Select internship
@@ -287,19 +356,34 @@ sequenceDiagram
    - Required before students can see internship (APPROVED + visible)
 
 4. **Visibility Toggle**:
+   - Menu retrieves filter settings from FilterManager for initial listing
+   - Gets internships via InternshipManager and applies filters
    - Menu calls InternshipManager.toggleInternshipVisibility()
    - Manager invokes Internship.setVisible() and updates persistence
    - Immediate effect on student views
    - Company representative retains access regardless
 
-5. **Application Review**:
+5. **Edit Internship Details**:
+   - Menu retrieves filter settings from FilterManager for initial listing
+   - Gets internships via InternshipManager and applies filters
+   - Editing restricted to non-APPROVED and non-FILLED internships
+   - Only allows editing Title, Description, and Preferred Major fields
+   - Menu calls InternshipManager.editInternshipField() with field choice and new value
+   - Manager invokes appropriate Internship setter (setTitle/setDescription/setPreferredMajor)
+   - Manager automatically resets status to PENDING after edit
+   - Manager updates internship via updateInternship() and persists via FileManager
+   - Ensures edited internships require re-approval from staff
+
+6. **Application Review**:
+   - Menu retrieves filter settings from FilterManager for initial listing
+   - Gets internships via InternshipManager and applies filters
    - Representative selects internship and views pending applications
    - Menu calls ApplicationManager.getApplicationsByInternshipandStatus()
    - Queries UserManager for student details in display loop
    - **Menu calls ApplicationManager.reviewApplication()** (not Application.setStatus() directly)
    - Manager updates status to SUCCESSFUL/UNSUCCESSFUL and persists
 
-6. **Student Accepts Placement** (Complex Multi-Manager Flow):
+7. **Student Accepts Placement** (Complex Multi-Manager Flow):
    - Student calls ApplicationManager.handleApplicationAcceptance()
    - Sets Application status to CONFIRMED
    - Updates Student's confirmedPlacementId via UserManager
@@ -309,12 +393,12 @@ sequenceDiagram
    - **Automatically rejects all other SUCCESSFUL applications** for that student
    - Multiple persistence operations across all three data files
 
-7. **Slot Management**:
+8. **Slot Management**:
    - Automatic status change to FILLED when confirmedSlots >= totalSlots
    - Handled by Internship.incrementConfirmedSlots() method
    - Prevents overbooking
 
-8. **Data Persistence**:
+9. **Data Persistence**:
    - All state changes saved via FileManager
    - Three separate data files: users.dat, internships.dat, applications.dat
    - Serialization preserves object graphs
