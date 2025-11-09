@@ -1,5 +1,6 @@
 package util;
 
+import control.ApplicationManager;
 import control.InternshipManager;
 import control.UserManager;
 import entity.*;
@@ -20,7 +21,8 @@ public class DemoDataSeeder {
     private static final String DEMO_POSITION = "Recruitment Manager";
 
     /**
-     * Seeds demo data: creates a pre-approved company representative and 8 diverse internships.
+     * Seeds demo data: creates a pre-approved company representative, 8 diverse internships,
+     * and 3 demo applications for student U2310005E.
      * This method loads existing data, adds demo data, and saves to files.
      */
     public static void seedDemoData() {
@@ -34,9 +36,13 @@ public class DemoDataSeeder {
         // Seed demo internships
         seedDemoInternships();
         
+        // Seed demo applications
+        seedDemoApplications();
+        
         System.out.println("Demo data seeding completed successfully!");
         System.out.println("Demo Company Rep: " + DEMO_REP_EMAIL + " (password: " + DEMO_REP_PASSWORD + ")");
         System.out.println("Created 8 internships (3 BASIC, 3 INTERMEDIATE, 2 ADVANCED)");
+        System.out.println("Created 3 demo applications for student U2310005E");
     }
 
     /**
@@ -122,6 +128,35 @@ public class DemoDataSeeder {
             "Computer Engineering", baseDate.plusDays(35), baseDate.plusMonths(10), DEMO_COMPANY_NAME, DEMO_REP_USER_ID, 5);
         
         System.out.println("Created 8 demo internships");
+    }
+
+    /**
+     * Creates and saves 3 demo applications for student U2310005E.
+     * Applications are for Computer Science internships across different levels.
+     */
+    private static void seedDemoApplications() {
+        ApplicationManager applicationManager = ApplicationManager.getInstance();
+        String studentId = "U2310005E";
+        
+        // Check if student already has applications
+        if (applicationManager.getApplicationsByStudent(studentId).size() > 0) {
+            System.out.println("Demo applications for " + studentId + " already exist. Skipping...");
+            return;
+        }
+        
+        // Create 3 applications for Computer Science internships (BASIC, INTERMEDIATE, ADVANCED)
+        String[] internshipIds = {"INT001", "INT004", "INT007"};
+        String[] applicationIds = {"APP001", "APP002", "APP003"};
+        
+        int successCount = 0;
+        for (int i = 0; i < internshipIds.length; i++) {
+            boolean added = applicationManager.addApplication(applicationIds[i], studentId, internshipIds[i]);
+            if (added) {
+                successCount++;
+            }
+        }
+        
+        System.out.println("Created " + successCount + " demo applications for student " + studentId);
     }
 
     /**
